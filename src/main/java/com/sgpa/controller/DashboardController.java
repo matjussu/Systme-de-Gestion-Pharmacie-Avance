@@ -6,13 +6,15 @@ import com.sgpa.dao.impl.MedicamentDAOImpl;
 import com.sgpa.dao.impl.VenteDAOImpl;
 import com.sgpa.dto.AlertePeremption;
 import com.sgpa.dto.AlerteStock;
-import com.sgpa.exception.DAOException;
-import com.sgpa.exception.ServiceException;
 import com.sgpa.model.Utilisateur;
 import com.sgpa.model.Vente;
 import com.sgpa.service.AlerteService;
 import com.sgpa.service.AuthenticationService;
-import com.sgpa.utils.DatabaseConnection;
+import com.sgpa.utils.AnimationUtils;
+import com.sgpa.utils.DialogHelper;
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
+import javafx.animation.Interpolator;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -24,8 +26,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.Node;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +43,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Controleur principal du tableau de bord.
@@ -59,6 +70,7 @@ public class DashboardController {
     @FXML private Label lblAlertesPeremption;
 
     @FXML private StackPane contentArea;
+    @FXML private HBox statsRow;
     @FXML private TableView<AlerteDTO> tableAlertes;
     @FXML private TableColumn<AlerteDTO, String> colAlertType;
     @FXML private TableColumn<AlerteDTO, String> colAlertMedicament;
@@ -73,7 +85,6 @@ public class DashboardController {
     @FXML private Button btnInventaire;
     @FXML private Button btnMedicaments;
     @FXML private Button btnCommandes;
-    @FXML private Button btnPromotions;
     @FXML private Button btnAlertes;
     @FXML private Button btnPredictions;
     @FXML private Button btnStatistiques;
@@ -103,6 +114,23 @@ public class DashboardController {
             if (!contentArea.getChildren().isEmpty()) {
                 dashboardContent = contentArea.getChildren().get(0);
             }
+            // Appliquer hover scale et click handlers sur les stat cards
+            if (statsRow != null) {
+                List<Runnable> cardActions = List.of(
+                    this::showMedicaments,    // Card 0: Medicaments
+                    this::showHistorique,     // Card 1: Ventes aujourd'hui
+                    this::showAlertes,        // Card 2: Alertes Stock
+                    this::showAlertes         // Card 3: Peremptions proches
+                );
+                var children = statsRow.getChildren();
+                for (int i = 0; i < children.size(); i++) {
+                    Node card = children.get(i);
+                    AnimationUtils.applyHoverScale(card, 1.03);
+                    card.setCursor(javafx.scene.Cursor.HAND);
+                    int index = i;
+                    card.setOnMouseClicked(e -> cardActions.get(index).run());
+                }
+            }
         });
     }
 
@@ -117,8 +145,10 @@ public class DashboardController {
     }
 
     private void setupDateLabel() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy");
-        lblDate.setText(LocalDate.now().format(formatter));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy", Locale.FRENCH);
+        String date = LocalDate.now().format(formatter);
+        // Capitaliser la premiere lettre
+        lblDate.setText(date.substring(0, 1).toUpperCase() + date.substring(1));
     }
 
     private void setupAlertsTable() {
@@ -145,6 +175,40 @@ public class DashboardController {
                 }
             }
         });
+
+        // Colonne Action avec bouton Commander
+        TableColumn<AlerteDTO, Void> colAction = new TableColumn<>("Action");
+        colAction.setCellFactory(column -> new TableCell<>() {
+            private final Button btnCommander = new Button("Commander");
+            {
+                btnCommander.getStyleClass().addAll("action-button-small");
+                btnCommander.setStyle("-fx-background-color: #166534; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 4 10; -fx-background-radius: 6; -fx-font-size: 11px;");
+                btnCommander.setOnAction(e -> {
+                    AlerteDTO alerte = getTableView().getItems().get(getIndex());
+                    navigateToCommandeWithMedicament(alerte.medicament);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnCommander);
+            }
+        });
+        tableAlertes.getColumns().add(colAction);
+
+        // Remplir toute la largeur
+        tableAlertes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+    }
+
+    private void navigateToCommandeWithMedicament(String medicamentName) {
+        setActiveButton(btnCommandes);
+        lblPageTitle.setText("Commandes Fournisseurs");
+        lblPageSubtitle.setText("Gestion des approvisionnements");
+        Object controller = loadViewAndGetController("/fxml/commandes.fxml");
+        if (controller instanceof CommandeController commandeCtrl) {
+            commandeCtrl.prefillMedicament(medicamentName);
+        }
     }
 
     private void updateUserInfo() {
@@ -203,10 +267,17 @@ public class DashboardController {
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
-                    lblTotalMedicaments.setText(String.valueOf(totalMedicaments));
-                    lblVentesJour.setText(String.valueOf(ventesJour));
-                    lblAlertesStock.setText(String.valueOf(alertesStock));
-                    lblAlertesPeremption.setText(String.valueOf(alertesPeremption));
+                    // Compteurs animes
+                    AnimationUtils.animateCounter(lblTotalMedicaments, 0, (int) totalMedicaments, Duration.millis(800));
+                    AnimationUtils.animateCounter(lblVentesJour, 0, (int) ventesJour, Duration.millis(800));
+                    AnimationUtils.animateCounter(lblAlertesStock, 0, alertesStock, Duration.millis(800));
+                    AnimationUtils.animateCounter(lblAlertesPeremption, 0, alertesPeremption, Duration.millis(800));
+                    // Trier par urgence: CRITIQUE > URGENT > reste
+                    alertes.sort((a1, a2) -> {
+                        int p1 = urgencePriority(a1.urgence);
+                        int p2 = urgencePriority(a2.urgence);
+                        return Integer.compare(p1, p2);
+                    });
                     tableAlertes.setItems(alertes);
                 });
             }
@@ -230,9 +301,12 @@ public class DashboardController {
         setActiveButton(btnDashboard);
         lblPageTitle.setText("Tableau de Bord");
         lblPageSubtitle.setText("Vue d'ensemble de votre pharmacie");
-        // Restaurer le contenu du dashboard
+        // Restaurer le contenu du dashboard (reset opacity apres fade-out de loadView)
         if (dashboardContent != null) {
+            dashboardContent.setOpacity(1.0);
+            dashboardContent.setTranslateX(0);
             contentArea.getChildren().setAll(dashboardContent);
+            animateViewIn(dashboardContent);
         }
         loadDashboardData();
     }
@@ -294,14 +368,6 @@ public class DashboardController {
     }
 
     @FXML
-    private void showPromotions() {
-        setActiveButton(btnPromotions);
-        lblPageTitle.setText("Promotions");
-        lblPageSubtitle.setText("Gestion des remises et offres speciales");
-        loadView("/fxml/promotions.fxml");
-    }
-
-    @FXML
     private void showAlertes() {
         setActiveButton(btnAlertes);
         lblPageTitle.setText("Alertes");
@@ -329,7 +395,7 @@ public class DashboardController {
     private void showUtilisateurs() {
         // Verifier que l'utilisateur a les droits d'administration
         if (currentUser == null || !currentUser.isAdmin()) {
-            showAlert(Alert.AlertType.WARNING, "Acces refuse",
+            DialogHelper.showWarning(contentArea, "Acces refuse",
                     "Seuls les pharmaciens peuvent acceder a la gestion des utilisateurs.");
             return;
         }
@@ -343,7 +409,7 @@ public class DashboardController {
     private void showAudit() {
         // Verifier que l'utilisateur a les droits d'administration
         if (currentUser == null || !currentUser.isAdmin()) {
-            showAlert(Alert.AlertType.WARNING, "Acces refuse",
+            DialogHelper.showWarning(contentArea, "Acces refuse",
                     "Seuls les pharmaciens peuvent acceder au journal d'audit.");
             return;
         }
@@ -357,7 +423,7 @@ public class DashboardController {
     private void showBackup() {
         // Verifier que l'utilisateur a les droits d'administration
         if (currentUser == null || !currentUser.isAdmin()) {
-            showAlert(Alert.AlertType.WARNING, "Acces refuse",
+            DialogHelper.showWarning(contentArea, "Acces refuse",
                     "Seuls les pharmaciens peuvent acceder aux sauvegardes.");
             return;
         }
@@ -371,7 +437,7 @@ public class DashboardController {
     private void showSettings() {
         // Verifier que l'utilisateur a les droits d'administration
         if (currentUser == null || !currentUser.isAdmin()) {
-            showAlert(Alert.AlertType.WARNING, "Acces refuse",
+            DialogHelper.showWarning(contentArea, "Acces refuse",
                     "Seuls les pharmaciens peuvent acceder aux parametres.");
             return;
         }
@@ -393,11 +459,58 @@ public class DashboardController {
                 baseCtrl.setDashboardController(this);
             }
 
-            contentArea.getChildren().setAll(view);
+            // Forcer la vue a remplir le StackPane parent
+            if (view instanceof Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
+                region.setMaxHeight(Double.MAX_VALUE);
+            }
+
+            // Animation: fade out current, slide in new
+            Node currentContent = contentArea.getChildren().isEmpty() ? null : contentArea.getChildren().get(0);
+            if (currentContent != null) {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(150), currentContent);
+                fadeOut.setFromValue(1);
+                fadeOut.setToValue(0);
+                fadeOut.setOnFinished(e -> {
+                    contentArea.getChildren().setAll(view);
+                    animateViewIn(view);
+                });
+                fadeOut.play();
+            } else {
+                contentArea.getChildren().setAll(view);
+                animateViewIn(view);
+            }
 
         } catch (IOException e) {
             logger.error("Erreur lors du chargement de la vue: {}", fxmlPath, e);
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la vue");
+            DialogHelper.showError(contentArea, "Erreur", "Impossible de charger la vue");
+        }
+    }
+
+    private Object loadViewAndGetController(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+
+            Object controller = loader.getController();
+            if (controller instanceof BaseController baseCtrl) {
+                baseCtrl.setCurrentUser(currentUser);
+                baseCtrl.setDashboardController(this);
+            }
+
+            if (view instanceof Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
+                region.setMaxHeight(Double.MAX_VALUE);
+            }
+
+            contentArea.getChildren().setAll(view);
+            animateViewIn(view);
+
+            return controller;
+        } catch (IOException e) {
+            logger.error("Erreur lors du chargement de la vue: {}", fxmlPath, e);
+            DialogHelper.showError(contentArea, "Erreur", "Impossible de charger la vue");
+            return null;
         }
     }
 
@@ -406,6 +519,20 @@ public class DashboardController {
      */
     public Utilisateur getCurrentUser() {
         return currentUser;
+    }
+
+    private void animateViewIn(Node view) {
+        view.setOpacity(0);
+        view.setTranslateX(30);
+        FadeTransition fade = new FadeTransition(Duration.millis(300), view);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(300), view);
+        slide.setFromX(30);
+        slide.setToX(0);
+        slide.setInterpolator(Interpolator.EASE_OUT);
+        fade.play();
+        slide.play();
     }
 
     private void setActiveButton(Button activeBtn) {
@@ -422,9 +549,6 @@ public class DashboardController {
         }
         if (btnInventaire != null) {
             btnInventaire.getStyleClass().remove("active");
-        }
-        if (btnPromotions != null) {
-            btnPromotions.getStyleClass().remove("active");
         }
         if (btnPredictions != null) {
             btnPredictions.getStyleClass().remove("active");
@@ -453,19 +577,17 @@ public class DashboardController {
 
     @FXML
     private void handleLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Deconnexion");
-        confirm.setHeaderText("Confirmer la deconnexion");
-        confirm.setContentText("Voulez-vous vraiment vous deconnecter ?");
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                if (authService != null) {
-                    authService.logout();
-                }
-                returnToLogin();
-            }
-        });
+        DialogHelper.showConfirmation(contentArea,
+                "Deconnexion",
+                "Voulez-vous vraiment vous deconnecter ?",
+                () -> {
+                    if (authService != null) {
+                        authService.logout();
+                    }
+                    returnToLogin();
+                },
+                null
+        );
     }
 
     private void returnToLogin() {
@@ -473,14 +595,20 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
 
-            Scene scene = new Scene(root, 500, 600);
+            Scene scene = new Scene(root, 520, 680);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
+            Rectangle2D sb = Screen.getPrimary().getVisualBounds();
             Stage stage = (Stage) contentArea.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("SGPA - Connexion");
             stage.setMaximized(false);
-            stage.centerOnScreen();
+            stage.setScene(scene);
+            stage.setTitle("ApotiCare - Connexion");
+            stage.setMinWidth(480);
+            stage.setMinHeight(600);
+            stage.setWidth(520);
+            stage.setHeight(680);
+            stage.setX((sb.getWidth() - 520) / 2);
+            stage.setY((sb.getHeight() - 680) / 2);
 
         } catch (IOException e) {
             logger.error("Erreur lors du retour a l'ecran de connexion", e);
@@ -488,10 +616,26 @@ public class DashboardController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+        switch (type) {
+            case ERROR:
+                DialogHelper.showError(contentArea, title, message);
+                break;
+            case WARNING:
+                DialogHelper.showWarning(contentArea, title, message);
+                break;
+            default:
+                DialogHelper.showInfo(contentArea, title, message);
+                break;
+        }
+    }
+
+    private static int urgencePriority(String urgence) {
+        return switch (urgence) {
+            case "CRITIQUE" -> 0;
+            case "URGENT" -> 1;
+            case "PERIME" -> 2;
+            default -> 3;
+        };
     }
 
     /**

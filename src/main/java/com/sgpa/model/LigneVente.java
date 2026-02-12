@@ -35,17 +35,10 @@ public class LigneVente {
     /** Reference vers le lot (pour jointures) */
     private Lot lot;
 
-    /** Reference a la promotion appliquee (peut etre null) */
-    private Integer idPromotion;
-
-    /** Montant de la remise appliquee */
-    private BigDecimal montantRemise = BigDecimal.ZERO;
-
     /**
      * Constructeur par defaut.
      */
     public LigneVente() {
-        this.montantRemise = BigDecimal.ZERO;
     }
 
     /**
@@ -129,54 +122,18 @@ public class LigneVente {
         this.lot = lot;
     }
 
-    public Integer getIdPromotion() {
-        return idPromotion;
-    }
-
-    public void setIdPromotion(Integer idPromotion) {
-        this.idPromotion = idPromotion;
-    }
-
-    public BigDecimal getMontantRemise() {
-        return montantRemise != null ? montantRemise : BigDecimal.ZERO;
-    }
-
-    public void setMontantRemise(BigDecimal montantRemise) {
-        this.montantRemise = montantRemise != null ? montantRemise : BigDecimal.ZERO;
-    }
-
     // Methodes metier
 
     /**
-     * Calcule le montant brut de la ligne (quantite x prix unitaire).
+     * Calcule le montant de la ligne (quantite x prix unitaire).
      *
-     * @return le montant brut de la ligne
+     * @return le montant de la ligne
      */
-    public BigDecimal getMontantBrut() {
+    public BigDecimal getMontantLigne() {
         if (prixUnitaireApplique == null) {
             return BigDecimal.ZERO;
         }
         return prixUnitaireApplique.multiply(BigDecimal.valueOf(quantite));
-    }
-
-    /**
-     * Calcule le montant net de la ligne (brut - remise).
-     *
-     * @return le montant net de la ligne
-     */
-    public BigDecimal getMontantLigne() {
-        BigDecimal brut = getMontantBrut();
-        BigDecimal remise = getMontantRemise();
-        return brut.subtract(remise);
-    }
-
-    /**
-     * Verifie si une promotion est appliquee sur cette ligne.
-     *
-     * @return true si une promotion est appliquee
-     */
-    public boolean aPromotion() {
-        return idPromotion != null && getMontantRemise().compareTo(BigDecimal.ZERO) > 0;
     }
 
     @Override
@@ -200,9 +157,7 @@ public class LigneVente {
                ", idLot=" + idLot +
                ", quantite=" + quantite +
                ", prixUnitaireApplique=" + prixUnitaireApplique +
-               ", montantRemise=" + montantRemise +
                ", montantLigne=" + getMontantLigne() +
-               (idPromotion != null ? ", promo=" + idPromotion : "") +
                '}';
     }
 }

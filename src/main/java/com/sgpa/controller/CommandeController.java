@@ -106,6 +106,7 @@ public class CommandeController extends BaseController {
         setupLigneTable();
         setupNewLineTable();
         setupCombos();
+        setupResponsiveTable(tableCommandes);
         loadData();
 
         tableCommandes.getSelectionModel().selectedItemProperty().addListener(
@@ -514,6 +515,49 @@ public class CommandeController extends BaseController {
                 new Thread(task).start();
             }
         });
+    }
+
+    /**
+     * Pre-remplit le formulaire de nouvelle commande avec un medicament specifique.
+     * Appele depuis le dashboard lors du clic sur "Commander" dans les alertes.
+     */
+    public void prefillMedicament(String medicamentName) {
+        // Ouvrir le dialog de nouvelle commande et pre-selectionner le medicament
+        Task<Void> task = new Task<>() {
+            private List<Fournisseur> fournisseurs;
+            private List<Medicament> medicaments;
+
+            @Override
+            protected Void call() throws Exception {
+                fournisseurs = fournisseurDAO.findAllActive();
+                medicaments = medicamentDAO.findAllActive();
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                comboFournisseur.setItems(FXCollections.observableArrayList(fournisseurs));
+                comboMedicament.setItems(FXCollections.observableArrayList(medicaments));
+
+                comboFournisseur.setValue(null);
+                newLineData.clear();
+                txtNewNotes.clear();
+                spinnerQteCmd.getValueFactory().setValue(10);
+                txtPrixCmd.clear();
+
+                // Pre-selectionner le medicament correspondant
+                for (Medicament med : medicaments) {
+                    if (med.getNomCommercial().equalsIgnoreCase(medicamentName)) {
+                        comboMedicament.setValue(med);
+                        break;
+                    }
+                }
+
+                newOrderDialog.setVisible(true);
+                newOrderDialog.setManaged(true);
+            }
+        };
+        new Thread(task).start();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

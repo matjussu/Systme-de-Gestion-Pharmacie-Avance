@@ -71,6 +71,8 @@ public class HistoriqueController extends BaseController {
         setupDatePickers();
         setupVentesTable();
         setupDetailTable();
+        setupResponsiveTable(tableVentes);
+        setupResponsiveTable(tableDetail);
         loadVentes();
     }
 

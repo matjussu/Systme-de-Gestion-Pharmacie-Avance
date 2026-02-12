@@ -7,7 +7,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.AuditController"
-      spacing="15" styleClass="audit-root">
+      spacing="15" styleClass="audit-root" maxWidth="Infinity" maxHeight="Infinity">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>

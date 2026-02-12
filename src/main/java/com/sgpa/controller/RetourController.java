@@ -89,6 +89,8 @@ public class RetourController extends BaseController {
         setupLignesVenteTable();
         setupRetoursTable();
         setupSpinner();
+        setupResponsiveTable(tableLignesVente);
+        setupResponsiveTable(tableRetours);
         loadRetours();
     }
 

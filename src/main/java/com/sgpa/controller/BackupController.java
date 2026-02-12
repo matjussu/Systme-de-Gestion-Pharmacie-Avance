@@ -53,6 +53,7 @@ public class BackupController extends BaseController {
     public void initialize() {
         lblBackupDir.setText("Repertoire de sauvegarde: " + backupService.getBackupDir());
         setupTable();
+        setupResponsiveTable(tableBackups);
         loadBackups();
     }
 

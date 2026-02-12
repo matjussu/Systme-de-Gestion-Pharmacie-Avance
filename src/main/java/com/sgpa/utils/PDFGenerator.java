@@ -59,7 +59,7 @@ public class PDFGenerator {
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     /** Repertoire par defaut pour les PDFs generes */
-    private static final String DEFAULT_OUTPUT_DIR = System.getProperty("user.home") + File.separator + "SGPA_Rapports";
+    private static final String DEFAULT_OUTPUT_DIR = System.getProperty("user.home") + File.separator + "ApotiCare_Rapports";
 
     private PdfFont fontRegular;
     private PdfFont fontBold;
@@ -127,7 +127,7 @@ public class PDFGenerator {
      * @param titre    le titre du document
      */
     public void addHeader(Document document, String titre) {
-        addHeader(document, titre, "SGPA - Systeme de Gestion Pharmacie Avance", null, null, null);
+        addHeader(document, titre, "ApotiCare - Gestion Moderne de Pharmacie", null, null, null);
     }
 
     /**
@@ -349,7 +349,7 @@ public class PDFGenerator {
         document.add(new Paragraph("")
                 .setBorderTop(new SolidBorder(ColorConstants.LIGHT_GRAY, 0.5f))
                 .setMarginTop(20));
-        document.add(new Paragraph("Document genere le " + dateGeneration + " - SGPA v1.0")
+        document.add(new Paragraph("Document genere le " + dateGeneration + " - ApotiCare v1.0")
                 .setFont(fontRegular)
                 .setFontSize(8)
                 .setFontColor(ColorConstants.GRAY)

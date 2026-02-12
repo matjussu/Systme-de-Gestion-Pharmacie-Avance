@@ -8,7 +8,7 @@
 
 <ScrollPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.sgpa.controller.StatistiquesController"
-            fitToWidth="true" styleClass="statistiques-root">
+            fitToWidth="true" fitToHeight="true" styleClass="statistiques-root" maxWidth="Infinity" maxHeight="Infinity">
     <VBox spacing="20">
         <padding>
             <Insets top="20" right="20" bottom="20" left="20"/>

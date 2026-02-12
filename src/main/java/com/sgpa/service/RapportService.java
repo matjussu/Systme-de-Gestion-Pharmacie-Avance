@@ -49,7 +49,7 @@ public class RapportService {
     private final AlerteService alerteService;
 
     // Informations de la pharmacie (a configurer)
-    private String nomPharmacie = "SGPA - Pharmacie";
+    private String nomPharmacie = "ApotiCare";
     private String adressePharmacie = "";
     private String telephonePharmacie = "";
     private String siretPharmacie = "";

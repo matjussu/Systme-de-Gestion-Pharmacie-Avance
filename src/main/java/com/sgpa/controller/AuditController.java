@@ -71,6 +71,7 @@ public class AuditController extends BaseController {
     public void initialize() {
         setupTable();
         setupFilters();
+        setupResponsiveTable(tableAudit);
         loadData();
     }
 

@@ -84,6 +84,7 @@ public class UtilisateurController extends BaseController {
     public void initialize() {
         setupTable();
         setupComboBoxes();
+        setupResponsiveTable(tableUtilisateurs);
         loadData();
 
         // Selection listener

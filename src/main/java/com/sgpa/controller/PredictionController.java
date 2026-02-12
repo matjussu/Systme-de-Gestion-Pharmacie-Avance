@@ -90,6 +90,7 @@ public class PredictionController extends BaseController {
         setupTable();
         setupSearch();
         setupSelection();
+        setupResponsiveTable(tablePredictions);
     }
 
     @Override

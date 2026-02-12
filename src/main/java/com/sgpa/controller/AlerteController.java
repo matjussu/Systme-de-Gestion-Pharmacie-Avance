@@ -75,6 +75,9 @@ public class AlerteController extends BaseController {
         setupStockBasTable();
         setupPeremptionTable();
         setupPerimesTable();
+        setupResponsiveTable(tableStockBas);
+        setupResponsiveTable(tablePeremption);
+        setupResponsiveTable(tablePerimes);
         loadAllAlertes();
     }
 

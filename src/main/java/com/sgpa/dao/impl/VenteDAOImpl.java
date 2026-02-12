@@ -48,8 +48,8 @@ public class VenteDAOImpl implements VenteDAO {
             "SELECT COUNT(*) FROM ventes WHERE id_vente = ?";
 
     private static final String SQL_INSERT_LIGNE =
-            "INSERT INTO ligne_ventes (id_vente, id_lot, quantite, prix_unitaire_applique, id_promotion, montant_remise) " +
-            "VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO ligne_ventes (id_vente, id_lot, quantite, prix_unitaire_applique) " +
+            "VALUES (?, ?, ?, ?)";
 
     private static final String SQL_FIND_LIGNES_BY_VENTE =
             "SELECT * FROM ligne_ventes WHERE id_vente = ?";
@@ -238,14 +238,6 @@ public class VenteDAOImpl implements VenteDAO {
             ps.setInt(3, ligneVente.getQuantite());
             ps.setBigDecimal(4, ligneVente.getPrixUnitaireApplique());
 
-            // Nouveaux champs pour les promotions
-            if (ligneVente.getIdPromotion() != null) {
-                ps.setInt(5, ligneVente.getIdPromotion());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-            ps.setBigDecimal(6, ligneVente.getMontantRemise());
-
             int affectedRows = ps.executeUpdate();
             if (affectedRows == 0) {
                 throw new DAOException("La creation de la ligne de vente a echoue");
@@ -395,17 +387,6 @@ public class VenteDAOImpl implements VenteDAO {
         ligne.setIdLot(rs.getInt("id_lot"));
         ligne.setQuantite(rs.getInt("quantite"));
         ligne.setPrixUnitaireApplique(rs.getBigDecimal("prix_unitaire_applique"));
-
-        // Champs promotion (peuvent ne pas exister dans anciennes versions)
-        try {
-            int idPromotion = rs.getInt("id_promotion");
-            if (!rs.wasNull()) {
-                ligne.setIdPromotion(idPromotion);
-            }
-            ligne.setMontantRemise(rs.getBigDecimal("montant_remise"));
-        } catch (SQLException e) {
-            // Colonnes non presentes (ancienne structure de table)
-        }
 
         return ligne;
     }

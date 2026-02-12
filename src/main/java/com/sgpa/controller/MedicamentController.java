@@ -69,6 +69,7 @@ public class MedicamentController extends BaseController {
     public void initialize() {
         setupTable();
         setupFormesGaleniques();
+        setupResponsiveTable(tableMedicaments);
         loadData();
 
         // Selection listener

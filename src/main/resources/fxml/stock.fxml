@@ -7,7 +7,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.StockController"
-      spacing="15" styleClass="stock-root">
+      spacing="15" styleClass="stock-root" maxWidth="Infinity" maxHeight="Infinity">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -15,7 +15,7 @@
     <!-- En-tete avec recherche -->
     <HBox spacing="15" alignment="CENTER_LEFT">
         <TextField fx:id="searchField" promptText="Rechercher un medicament..."
-                   prefWidth="300" onKeyReleased="#handleSearch"/>
+                   HBox.hgrow="ALWAYS" onKeyReleased="#handleSearch"/>
         <Button onAction="#handleSearch" styleClass="icon-button">
             <graphic><FontIcon iconLiteral="fas-search"/></graphic>
         </Button>

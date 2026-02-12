@@ -100,6 +100,8 @@ public class InventaireController extends BaseController {
         setupHistoriqueTable();
         setupSpinner();
         setupSearch();
+        setupResponsiveTable(tableLots);
+        setupResponsiveTable(tableHistorique);
         loadData();
     }
 

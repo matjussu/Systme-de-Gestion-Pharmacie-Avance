@@ -18,6 +18,7 @@ import com.sgpa.service.AuthenticationService;
 import com.sgpa.service.StockService;
 import com.sgpa.service.VenteService;
 import com.sgpa.utils.DatabaseConnection;
+import com.sgpa.utils.FontLoader;
 import com.sgpa.utils.PasswordUtils;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,7 @@ public class Main extends Application {
      */
     public static void main(String[] args) {
         logger.info("===========================================");
-        logger.info("SGPA - Systeme de Gestion Pharmacie Avance");
+        logger.info("ApotiCare - Gestion Moderne de Pharmacie");
         logger.info("===========================================");
 
         // Test de la connexion BDD avant de lancer JavaFX
@@ -73,6 +76,13 @@ public class Main extends Application {
 
         // Test Services (Phase 2)
         testServices();
+
+        // Proprietes de rendu pour un affichage plus lisse
+        System.setProperty("prism.lcdtext", "false");
+        System.setProperty("prism.text", "t2k");
+
+        // Charger les polices custom
+        FontLoader.loadFonts();
 
         // Lancer l'application JavaFX
         launch(args);
@@ -322,12 +332,19 @@ public class Main extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
 
-            Scene scene = new Scene(root, 500, 650);
+            Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
-            primaryStage.setTitle("SGPA - Connexion");
+            Rectangle2D sb = Screen.getPrimary().getVisualBounds();
+            primaryStage.setTitle("ApotiCare - Connexion");
             primaryStage.setScene(scene);
-            primaryStage.setResizable(false);
+            primaryStage.setWidth(520);
+            primaryStage.setHeight(680);
+            primaryStage.setMinWidth(480);
+            primaryStage.setMinHeight(600);
+            primaryStage.setResizable(true);
+            primaryStage.setX((sb.getWidth() - 520) / 2);
+            primaryStage.setY((sb.getHeight() - 680) / 2);
             primaryStage.setOnCloseRequest(event -> {
                 logger.info("Fermeture de l'application...");
                 DatabaseConnection.getInstance().shutdown();
@@ -340,7 +357,7 @@ public class Main extends Application {
             logger.error("Erreur lors du chargement de l'interface", e);
 
             // Fallback: afficher les resultats des tests
-            Label label = new Label("SGPA - Erreur de chargement\n\n" +
+            Label label = new Label("ApotiCare - Erreur de chargement\n\n" +
                     "=== RESULTATS DES TESTS ===\n\n" +
                     testResults.toString() +
                     "\n\nErreur: " + e.getMessage());
@@ -351,7 +368,7 @@ public class Main extends Application {
             fallbackRoot.setStyle("-fx-padding: 40px; -fx-background-color: #f5f5f5;");
 
             Scene scene = new Scene(fallbackRoot, 550, 400);
-            primaryStage.setTitle("SGPA - Erreur");
+            primaryStage.setTitle("ApotiCare - Erreur");
             primaryStage.setScene(scene);
             primaryStage.show();
         }

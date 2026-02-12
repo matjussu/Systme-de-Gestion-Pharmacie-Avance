@@ -1,53 +1,76 @@
 package com.sgpa.controller;
 
 import com.sgpa.model.Utilisateur;
+import com.sgpa.utils.AnimationUtils;
+import javafx.animation.*;
+import javafx.scene.Node;
+import javafx.scene.control.TableView;
+import javafx.util.Duration;
 
-/**
- * Classe de base pour tous les controleurs de vues.
- * Fournit les methodes communes pour la gestion de l'utilisateur
- * et la reference au dashboard.
- *
- * @author SGPA Team
- * @version 1.0
- */
 public abstract class BaseController {
 
     protected Utilisateur currentUser;
     protected DashboardController dashboardController;
 
-    /**
-     * Definit l'utilisateur actuellement connecte.
-     *
-     * @param user l'utilisateur connecte
-     */
     public void setCurrentUser(Utilisateur user) {
         this.currentUser = user;
         onUserSet();
     }
 
-    /**
-     * Definit la reference au controleur du dashboard.
-     *
-     * @param controller le controleur du dashboard
-     */
     public void setDashboardController(DashboardController controller) {
         this.dashboardController = controller;
     }
 
-    /**
-     * Methode appelee apres que l'utilisateur a ete defini.
-     * Les sous-classes peuvent la surcharger pour initialiser les donnees.
-     */
     protected void onUserSet() {
-        // Implementation par defaut vide
     }
 
-    /**
-     * Retourne l'utilisateur actuellement connecte.
-     *
-     * @return l'utilisateur connecte
-     */
     public Utilisateur getCurrentUser() {
         return currentUser;
+    }
+
+    // --- Methodes d'animation utilitaires ---
+
+    protected void fadeIn(Node node) {
+        node.setOpacity(0);
+        FadeTransition ft = new FadeTransition(Duration.millis(300), node);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.play();
+    }
+
+    protected void fadeOut(Node node, Runnable onFinished) {
+        FadeTransition ft = new FadeTransition(Duration.millis(300), node);
+        ft.setFromValue(node.getOpacity());
+        ft.setToValue(0);
+        if (onFinished != null) {
+            ft.setOnFinished(e -> onFinished.run());
+        }
+        ft.play();
+    }
+
+    protected void slideInFromRight(Node node) {
+        node.setOpacity(0);
+        node.setTranslateX(40);
+        FadeTransition fade = new FadeTransition(Duration.millis(350), node);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(350), node);
+        slide.setFromX(40);
+        slide.setToX(0);
+        slide.setInterpolator(Interpolator.EASE_OUT);
+        fade.play();
+        slide.play();
+    }
+
+    protected void staggerFadeIn(Node... nodes) {
+        AnimationUtils.staggerSlideIn(nodes);
+    }
+
+    protected void scaleOnHover(Node node, double scaleFactor) {
+        AnimationUtils.applyHoverScale(node, scaleFactor);
+    }
+
+    protected void setupResponsiveTable(TableView<?> tableView) {
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
     }
 }

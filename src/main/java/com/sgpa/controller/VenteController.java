@@ -12,7 +12,6 @@ import com.sgpa.service.RapportService;
 import com.sgpa.service.StockService;
 import com.sgpa.service.VenteService;
 import javafx.application.Platform;
-import java.awt.Desktop;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -88,6 +87,8 @@ public class VenteController extends BaseController {
         setupMedicamentsTable();
         setupPanierTable();
         setupOrdonnanceCheckbox();
+        setupResponsiveTable(tableMedicaments);
+        setupResponsiveTable(tablePanier);
         loadAllMedicaments();
     }
 
@@ -112,11 +113,11 @@ public class VenteController extends BaseController {
                     setText(item);
                     int stock = Integer.parseInt(item);
                     if (stock == 0) {
-                        setStyle("-fx-text-fill: #dc3545; -fx-font-weight: bold;");
+                        setStyle("-fx-text-fill: #dc3545; -fx-font-weight: bold; -fx-alignment: center;");
                     } else if (stock < 10) {
-                        setStyle("-fx-text-fill: #fd7e14; -fx-font-weight: bold;");
+                        setStyle("-fx-text-fill: #fd7e14; -fx-font-weight: bold; -fx-alignment: center;");
                     } else {
-                        setStyle("-fx-text-fill: #28a745;");
+                        setStyle("-fx-text-fill: #28a745; -fx-alignment: center;");
                     }
                 }
             }
@@ -135,10 +136,13 @@ public class VenteController extends BaseController {
             }
         });
 
-        // Double-clic pour ajouter
+        // Simple clic pour ajouter au panier (incremente si deja present)
         tableMedicaments.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                handleAddToCart();
+            if (event.getClickCount() == 1) {
+                MedicamentStock selected = tableMedicaments.getSelectionModel().getSelectedItem();
+                if (selected != null && selected.stock > 0) {
+                    handleAddToCart();
+                }
             }
         });
     }
@@ -405,12 +409,21 @@ public class VenteController extends BaseController {
             // Ouvrir le PDF avec l'application par defaut
             try {
                 File pdfFile = new File(filePath);
-                if (Desktop.isDesktopSupported() && pdfFile.exists()) {
-                    Desktop.getDesktop().open(pdfFile);
+                if (pdfFile.exists()) {
+                    String os = System.getProperty("os.name").toLowerCase();
+                    ProcessBuilder pb;
+                    if (os.contains("win")) {
+                        pb = new ProcessBuilder("cmd", "/c", "start", "", filePath);
+                    } else if (os.contains("mac")) {
+                        pb = new ProcessBuilder("open", filePath);
+                    } else {
+                        pb = new ProcessBuilder("xdg-open", filePath);
+                    }
+                    pb.start();
                 }
                 showAlert(Alert.AlertType.INFORMATION, "Ticket genere",
                         "Le ticket a ete genere:\n" + filePath);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.warn("Impossible d'ouvrir le PDF automatiquement", e);
                 showAlert(Alert.AlertType.INFORMATION, "Ticket genere",
                         "Le ticket a ete genere:\n" + filePath + "\n\n" +

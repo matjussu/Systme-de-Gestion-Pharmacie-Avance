@@ -14,12 +14,8 @@ public class LigneVenteDTO {
     private int idMedicament;
     private int quantite;
     private BigDecimal prixUnitaire;
-    private Integer idPromotion;
-    private String nomPromotion;
-    private BigDecimal montantRemise = BigDecimal.ZERO;
 
     public LigneVenteDTO() {
-        this.montantRemise = BigDecimal.ZERO;
     }
 
     public LigneVenteDTO(int idMedicament, int quantite) {
@@ -57,44 +53,12 @@ public class LigneVenteDTO {
         this.prixUnitaire = prixUnitaire;
     }
 
-    public Integer getIdPromotion() {
-        return idPromotion;
-    }
-
-    public void setIdPromotion(Integer idPromotion) {
-        this.idPromotion = idPromotion;
-    }
-
-    public String getNomPromotion() {
-        return nomPromotion;
-    }
-
-    public void setNomPromotion(String nomPromotion) {
-        this.nomPromotion = nomPromotion;
-    }
-
-    public BigDecimal getMontantRemise() {
-        return montantRemise != null ? montantRemise : BigDecimal.ZERO;
-    }
-
-    public void setMontantRemise(BigDecimal montantRemise) {
-        this.montantRemise = montantRemise != null ? montantRemise : BigDecimal.ZERO;
-    }
-
     /**
-     * Calcule le montant net apres remise.
+     * Calcule le montant de la ligne.
      */
     public BigDecimal getMontantNet() {
         if (prixUnitaire == null) return BigDecimal.ZERO;
-        BigDecimal brut = prixUnitaire.multiply(BigDecimal.valueOf(quantite));
-        return brut.subtract(getMontantRemise());
-    }
-
-    /**
-     * Verifie si une promotion est appliquee.
-     */
-    public boolean aPromotion() {
-        return idPromotion != null && getMontantRemise().compareTo(BigDecimal.ZERO) > 0;
+        return prixUnitaire.multiply(BigDecimal.valueOf(quantite));
     }
 
     @Override
@@ -103,8 +67,6 @@ public class LigneVenteDTO {
                 "idMedicament=" + idMedicament +
                 ", quantite=" + quantite +
                 ", prixUnitaire=" + prixUnitaire +
-                ", montantRemise=" + montantRemise +
-                (nomPromotion != null ? ", promo=" + nomPromotion : "") +
                 '}';
     }
 }

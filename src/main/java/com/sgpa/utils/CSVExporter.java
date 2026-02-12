@@ -37,7 +37,7 @@ public class CSVExporter {
     private static final String UTF8_BOM = "\uFEFF";
 
     /** Repertoire par defaut pour les exports */
-    private static final String DEFAULT_OUTPUT_DIR = System.getProperty("user.home") + "/SGPA_Exports";
+    private static final String DEFAULT_OUTPUT_DIR = System.getProperty("user.home") + "/ApotiCare_Exports";
 
     /** Formatteur de date/heure pour les noms de fichiers */
     private static final DateTimeFormatter FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");

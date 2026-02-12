@@ -257,9 +257,6 @@ for (Lot lot : lots) {
 - `prediction.seuil.critique.jours` : Seuil critique (defaut: 7 jours)
 - `prediction.seuil.urgent.jours` : Seuil urgent (defaut: 14 jours)
 
-**A FAIRE:**
-- [ ] Gestion des promotions/remises
-
 #### 4.4 Securite et administration (TERMINEE)
 - [x] Gestion des utilisateurs (CRUD)
 - [x] Journal d'audit des actions

@@ -33,7 +33,7 @@ public class BackupService {
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
-    private static final String BACKUP_DIR = System.getProperty("user.home") + "/SGPA_Backups";
+    private static final String BACKUP_DIR = System.getProperty("user.home") + "/ApotiCare_Backups";
     private static final String BACKUP_PREFIX = "sgpa_backup_";
 
     private String dbHost = "localhost";

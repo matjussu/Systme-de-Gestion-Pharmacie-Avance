@@ -32,13 +32,13 @@ public class ConfigService {
 
     static {
         // Valeurs par defaut
-        DEFAULT_PROPS.setProperty("pharmacie.nom", "Pharmacie SGPA");
+        DEFAULT_PROPS.setProperty("pharmacie.nom", "ApotiCare");
         DEFAULT_PROPS.setProperty("pharmacie.adresse", "");
         DEFAULT_PROPS.setProperty("pharmacie.telephone", "");
         DEFAULT_PROPS.setProperty("alerte.peremption.jours", "90");
         DEFAULT_PROPS.setProperty("alerte.stock.seuil.defaut", "10");
-        DEFAULT_PROPS.setProperty("rapports.repertoire", System.getProperty("user.home") + "/SGPA_Rapports");
-        DEFAULT_PROPS.setProperty("backup.repertoire", System.getProperty("user.home") + "/SGPA_Backups");
+        DEFAULT_PROPS.setProperty("rapports.repertoire", System.getProperty("user.home") + "/ApotiCare_Rapports");
+        DEFAULT_PROPS.setProperty("backup.repertoire", System.getProperty("user.home") + "/ApotiCare_Backups");
         DEFAULT_PROPS.setProperty("backup.compression", "true");
         DEFAULT_PROPS.setProperty("ui.pagination.taille", "50");
         DEFAULT_PROPS.setProperty("ui.theme", "default");
@@ -125,7 +125,7 @@ public class ConfigService {
         }
 
         try (OutputStream os = Files.newOutputStream(Paths.get(USER_CONFIG_FILE))) {
-            toSave.store(os, "SGPA - Configuration Utilisateur");
+            toSave.store(os, "ApotiCare - Configuration Utilisateur");
             logger.info("Configuration sauvegardee dans {}", USER_CONFIG_FILE);
         }
     }

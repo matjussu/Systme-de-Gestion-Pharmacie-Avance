@@ -93,6 +93,8 @@ public class StockController extends BaseController {
         setupMedicamentTable();
         setupLotTable();
         setupDialog();
+        setupResponsiveTable(tableMedicaments);
+        setupResponsiveTable(tableLots);
         loadData();
 
         // Selection listener

@@ -2,36 +2,38 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane fx:id="loginRoot" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.sgpa.controller.LoginController"
             styleClass="login-root"
             stylesheets="@../css/style.css">
 
     <center>
-        <VBox alignment="CENTER" spacing="20" maxWidth="400">
+        <VBox fx:id="loginFormContainer" alignment="CENTER" spacing="24" maxWidth="440">
             <padding>
                 <Insets top="40" right="40" bottom="40" left="40"/>
             </padding>
 
-            <!-- Logo et titre -->
-            <VBox alignment="CENTER" spacing="10" styleClass="login-header">
-                <FontIcon iconLiteral="fas-clinic-medical" iconSize="64" styleClass="logo-icon"/>
-                <Text text="SGPA" styleClass="app-title"/>
-                <Text text="Systeme de Gestion Pharmacie Avance" styleClass="app-subtitle"/>
+            <!-- Logo -->
+            <VBox fx:id="loginHeader" alignment="CENTER" spacing="10" styleClass="login-header">
+                <ImageView fitHeight="80" preserveRatio="true" smooth="true">
+                    <image><Image url="@../images/Apoticare_login-removebg-preview.png"/></image>
+                </ImageView>
+                <Text text="Gestion Moderne de Pharmacie" styleClass="app-subtitle"/>
             </VBox>
 
             <!-- Formulaire de connexion -->
-            <VBox spacing="15" styleClass="login-form">
+            <VBox fx:id="loginForm" spacing="15" styleClass="login-form">
                 <VBox spacing="5">
                     <Label text="Nom d'utilisateur" styleClass="field-label"/>
                     <HBox styleClass="input-container">
                         <FontIcon iconLiteral="fas-user" styleClass="input-icon"/>
-                        <TextField fx:id="usernameField" promptText="Entrez votre identifiant" styleClass="login-input"/>
+                        <TextField fx:id="usernameField" promptText="Entrez votre identifiant" styleClass="login-input" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
 
@@ -39,18 +41,21 @@
                     <Label text="Mot de passe" styleClass="field-label"/>
                     <HBox styleClass="input-container">
                         <FontIcon iconLiteral="fas-lock" styleClass="input-icon"/>
-                        <PasswordField fx:id="passwordField" promptText="Entrez votre mot de passe" styleClass="login-input" onAction="#handleLogin"/>
+                        <PasswordField fx:id="passwordField" promptText="Entrez votre mot de passe" styleClass="login-input" onAction="#handleLogin" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
 
                 <!-- Message d'erreur -->
-                <Label fx:id="errorLabel" styleClass="error-label" visible="false" managed="false"/>
+                <Label fx:id="errorLabel" styleClass="error-label" visible="false" managed="false"
+                       alignment="CENTER" maxWidth="Infinity"/>
 
                 <!-- Bouton connexion -->
                 <Button fx:id="loginButton" text="Se connecter" onAction="#handleLogin"
                         styleClass="login-button" maxWidth="Infinity">
                     <graphic>
-                        <FontIcon iconLiteral="fas-sign-in-alt"/>
+                        <ImageView fitHeight="22" fitWidth="22" preserveRatio="true">
+                            <Image url="@../images/docteur-stethoscope (1).png"/>
+                        </ImageView>
                     </graphic>
                 </Button>
 
@@ -59,9 +64,9 @@
             </VBox>
 
             <!-- Info version -->
-            <HBox alignment="CENTER" spacing="10" styleClass="version-info">
+            <HBox fx:id="versionInfo" alignment="CENTER" spacing="10" styleClass="version-info">
                 <FontIcon iconLiteral="fas-info-circle" iconSize="12"/>
-                <Label text="Version 1.0 - Phase 3"/>
+                <Label text="ApotiCare v1.0"/>
             </HBox>
         </VBox>
     </center>
