@@ -54,19 +54,14 @@
 
                     <Separator/>
 
-                    <Button fx:id="btnStock" text="Gestion Stock" onAction="#showStock"
+                    <Button fx:id="btnProduitsStock" text="Produits &amp; Stock" onAction="#showProduitsStock"
                             styleClass="menu-button" maxWidth="Infinity" alignment="CENTER_LEFT">
-                        <graphic><FontIcon iconLiteral="fas-boxes"/></graphic>
+                        <graphic><FontIcon iconLiteral="fas-pills"/></graphic>
                     </Button>
 
                     <Button fx:id="btnInventaire" text="Inventaire" onAction="#showInventaire"
                             styleClass="menu-button" maxWidth="Infinity" alignment="CENTER_LEFT">
                         <graphic><FontIcon iconLiteral="fas-clipboard-check"/></graphic>
-                    </Button>
-
-                    <Button fx:id="btnMedicaments" text="Medicaments" onAction="#showMedicaments"
-                            styleClass="menu-button" maxWidth="Infinity" alignment="CENTER_LEFT">
-                        <graphic><FontIcon iconLiteral="fas-pills"/></graphic>
                     </Button>
 
                     <Button fx:id="btnCommandes" text="Commandes" onAction="#showCommandes"
@@ -218,10 +213,10 @@
                                     <Label text="Nouvelle Vente" styleClass="action-card-title"/>
                                     <Label text="Enregistrer une vente" styleClass="action-card-subtitle"/>
                                 </VBox>
-                                <VBox styleClass="action-card, action-card-blue" onMouseClicked="#showStock" HBox.hgrow="ALWAYS">
-                                    <FontIcon iconLiteral="fas-boxes" iconSize="28" styleClass="action-card-icon"/>
-                                    <Label text="Gestion Stock" styleClass="action-card-title"/>
-                                    <Label text="Ajouter ou consulter les lots" styleClass="action-card-subtitle"/>
+                                <VBox styleClass="action-card, action-card-blue" onMouseClicked="#showProduitsStock" HBox.hgrow="ALWAYS">
+                                    <FontIcon iconLiteral="fas-pills" iconSize="28" styleClass="action-card-icon"/>
+                                    <Label text="Produits &amp; Stock" styleClass="action-card-title"/>
+                                    <Label text="Catalogue et gestion des lots" styleClass="action-card-subtitle"/>
                                 </VBox>
                                 <VBox styleClass="action-card, action-card-orange" onMouseClicked="#showCommandes" HBox.hgrow="ALWAYS">
                                     <FontIcon iconLiteral="fas-truck" iconSize="28" styleClass="action-card-icon"/>

@@ -160,7 +160,7 @@ public class MedicamentController extends BaseController {
                 logger.error("Erreur chargement medicaments", getException());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void handleSelection(Medicament medicament) {
@@ -227,7 +227,7 @@ public class MedicamentController extends BaseController {
                 lblCount.setText(getValue().size() + " resultat(s)");
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -305,7 +305,7 @@ public class MedicamentController extends BaseController {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de sauvegarder: " + getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -341,7 +341,7 @@ public class MedicamentController extends BaseController {
                                 "Impossible de supprimer ce medicament. Il est peut-etre utilise dans des ventes.");
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }

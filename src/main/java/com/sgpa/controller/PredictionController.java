@@ -240,7 +240,7 @@ public class PredictionController extends BaseController {
             }
         };
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     private void updateStats(List<PredictionReapprovisionnement> list) {
@@ -384,7 +384,7 @@ public class PredictionController extends BaseController {
             }
         };
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

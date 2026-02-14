@@ -42,8 +42,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Controleur principal du tableau de bord.
@@ -58,6 +60,10 @@ public class DashboardController {
 
     // Sauvegarde du contenu initial du dashboard pour restauration
     private Node dashboardContent;
+
+    // Cache des vues FXML deja chargees
+    private final Map<String, Parent> viewCache = new HashMap<>();
+    private final Map<String, Object> controllerCache = new HashMap<>();
 
     @FXML private Label lblUserName;
     @FXML private Label lblUserRole;
@@ -81,9 +87,8 @@ public class DashboardController {
     @FXML private Button btnVentes;
     @FXML private Button btnHistorique;
     @FXML private Button btnRetours;
-    @FXML private Button btnStock;
+    @FXML private Button btnProduitsStock;
     @FXML private Button btnInventaire;
-    @FXML private Button btnMedicaments;
     @FXML private Button btnCommandes;
     @FXML private Button btnAlertes;
     @FXML private Button btnPredictions;
@@ -117,7 +122,7 @@ public class DashboardController {
             // Appliquer hover scale et click handlers sur les stat cards
             if (statsRow != null) {
                 List<Runnable> cardActions = List.of(
-                    this::showMedicaments,    // Card 0: Medicaments
+                    this::showProduitsStock,  // Card 0: Medicaments
                     this::showHistorique,     // Card 1: Ventes aujourd'hui
                     this::showAlertes,        // Card 2: Alertes Stock
                     this::showAlertes         // Card 3: Peremptions proches
@@ -125,7 +130,6 @@ public class DashboardController {
                 var children = statsRow.getChildren();
                 for (int i = 0; i < children.size(); i++) {
                     Node card = children.get(i);
-                    AnimationUtils.applyHoverScale(card, 1.03);
                     card.setCursor(javafx.scene.Cursor.HAND);
                     int index = i;
                     card.setOnMouseClicked(e -> cardActions.get(index).run());
@@ -201,7 +205,7 @@ public class DashboardController {
         tableAlertes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
     }
 
-    private void navigateToCommandeWithMedicament(String medicamentName) {
+    public void navigateToCommandeWithMedicament(String medicamentName) {
         setActiveButton(btnCommandes);
         lblPageTitle.setText("Commandes Fournisseurs");
         lblPageSubtitle.setText("Gestion des approvisionnements");
@@ -288,7 +292,7 @@ public class DashboardController {
             }
         };
 
-        new Thread(loadTask).start();
+        BaseController.getExecutor().submit(loadTask);
     }
 
     @FXML
@@ -336,11 +340,11 @@ public class DashboardController {
     }
 
     @FXML
-    private void showStock() {
-        setActiveButton(btnStock);
-        lblPageTitle.setText("Gestion du Stock");
-        lblPageSubtitle.setText("Inventaire et mouvements de stock");
-        loadView("/fxml/stock.fxml");
+    private void showProduitsStock() {
+        setActiveButton(btnProduitsStock);
+        lblPageTitle.setText("Produits & Stock");
+        lblPageSubtitle.setText("Catalogue des medicaments et gestion des lots");
+        loadView("/fxml/produits_stock.fxml");
     }
 
     @FXML
@@ -349,14 +353,6 @@ public class DashboardController {
         lblPageTitle.setText("Inventaire");
         lblPageSubtitle.setText("Comptage physique et regularisation des ecarts");
         loadView("/fxml/inventaire.fxml");
-    }
-
-    @FXML
-    private void showMedicaments() {
-        setActiveButton(btnMedicaments);
-        lblPageTitle.setText("Medicaments");
-        lblPageSubtitle.setText("Catalogue des medicaments");
-        loadView("/fxml/medicaments.fxml");
     }
 
     @FXML
@@ -449,37 +445,35 @@ public class DashboardController {
 
     private void loadView(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
+            Parent view;
+            Object controller;
 
-            // Passer les infos necessaires au controleur charge
-            Object controller = loader.getController();
-            if (controller instanceof BaseController baseCtrl) {
-                baseCtrl.setCurrentUser(currentUser);
-                baseCtrl.setDashboardController(this);
-            }
-
-            // Forcer la vue a remplir le StackPane parent
-            if (view instanceof Region region) {
-                region.setMaxWidth(Double.MAX_VALUE);
-                region.setMaxHeight(Double.MAX_VALUE);
-            }
-
-            // Animation: fade out current, slide in new
-            Node currentContent = contentArea.getChildren().isEmpty() ? null : contentArea.getChildren().get(0);
-            if (currentContent != null) {
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(150), currentContent);
-                fadeOut.setFromValue(1);
-                fadeOut.setToValue(0);
-                fadeOut.setOnFinished(e -> {
-                    contentArea.getChildren().setAll(view);
-                    animateViewIn(view);
-                });
-                fadeOut.play();
+            if (viewCache.containsKey(fxmlPath)) {
+                view = viewCache.get(fxmlPath);
+                controller = controllerCache.get(fxmlPath);
+                if (controller instanceof BaseController baseCtrl) {
+                    baseCtrl.onViewDisplayed();
+                }
             } else {
-                contentArea.getChildren().setAll(view);
-                animateViewIn(view);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                view = loader.load();
+                controller = loader.getController();
+
+                if (controller instanceof BaseController baseCtrl) {
+                    baseCtrl.setCurrentUser(currentUser);
+                    baseCtrl.setDashboardController(this);
+                }
+
+                if (view instanceof Region region) {
+                    region.setMaxWidth(Double.MAX_VALUE);
+                    region.setMaxHeight(Double.MAX_VALUE);
+                }
+
+                viewCache.put(fxmlPath, view);
+                controllerCache.put(fxmlPath, controller);
             }
+
+            showView(view);
 
         } catch (IOException e) {
             logger.error("Erreur lors du chargement de la vue: {}", fxmlPath, e);
@@ -487,25 +481,44 @@ public class DashboardController {
         }
     }
 
+    private void showView(Node view) {
+        view.setOpacity(1);
+        view.setTranslateX(0);
+        contentArea.getChildren().setAll(view);
+        animateViewIn(view);
+    }
+
     private Object loadViewAndGetController(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
+            Parent view;
+            Object controller;
 
-            Object controller = loader.getController();
-            if (controller instanceof BaseController baseCtrl) {
-                baseCtrl.setCurrentUser(currentUser);
-                baseCtrl.setDashboardController(this);
+            if (viewCache.containsKey(fxmlPath)) {
+                view = viewCache.get(fxmlPath);
+                controller = controllerCache.get(fxmlPath);
+                if (controller instanceof BaseController baseCtrl) {
+                    baseCtrl.onViewDisplayed();
+                }
+            } else {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                view = loader.load();
+                controller = loader.getController();
+
+                if (controller instanceof BaseController baseCtrl) {
+                    baseCtrl.setCurrentUser(currentUser);
+                    baseCtrl.setDashboardController(this);
+                }
+
+                if (view instanceof Region region) {
+                    region.setMaxWidth(Double.MAX_VALUE);
+                    region.setMaxHeight(Double.MAX_VALUE);
+                }
+
+                viewCache.put(fxmlPath, view);
+                controllerCache.put(fxmlPath, controller);
             }
 
-            if (view instanceof Region region) {
-                region.setMaxWidth(Double.MAX_VALUE);
-                region.setMaxHeight(Double.MAX_VALUE);
-            }
-
-            contentArea.getChildren().setAll(view);
-            animateViewIn(view);
-
+            showView(view);
             return controller;
         } catch (IOException e) {
             logger.error("Erreur lors du chargement de la vue: {}", fxmlPath, e);
@@ -523,12 +536,12 @@ public class DashboardController {
 
     private void animateViewIn(Node view) {
         view.setOpacity(0);
-        view.setTranslateX(30);
-        FadeTransition fade = new FadeTransition(Duration.millis(300), view);
+        view.setTranslateX(15);
+        FadeTransition fade = new FadeTransition(Duration.millis(100), view);
         fade.setFromValue(0);
         fade.setToValue(1);
-        TranslateTransition slide = new TranslateTransition(Duration.millis(300), view);
-        slide.setFromX(30);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(100), view);
+        slide.setFromX(15);
         slide.setToX(0);
         slide.setInterpolator(Interpolator.EASE_OUT);
         fade.play();
@@ -540,8 +553,7 @@ public class DashboardController {
         btnDashboard.getStyleClass().remove("active");
         btnVentes.getStyleClass().remove("active");
         btnHistorique.getStyleClass().remove("active");
-        btnStock.getStyleClass().remove("active");
-        btnMedicaments.getStyleClass().remove("active");
+        btnProduitsStock.getStyleClass().remove("active");
         btnCommandes.getStyleClass().remove("active");
         btnAlertes.getStyleClass().remove("active");
         if (btnRetours != null) {

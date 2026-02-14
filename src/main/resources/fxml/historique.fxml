@@ -13,24 +13,26 @@
     </padding>
 
     <!-- Filtres -->
-    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="filters-bar">
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Du:" styleClass="filter-label"/>
-            <DatePicker fx:id="dateDebut" promptText="Date debut"/>
+    <HBox spacing="12" alignment="CENTER_LEFT" styleClass="filters-bar">
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Du :" styleClass="filter-label"/>
+            <DatePicker fx:id="dateDebut" promptText="jj/mm/aaaa" prefWidth="140"/>
         </HBox>
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Au:" styleClass="filter-label"/>
-            <DatePicker fx:id="dateFin" promptText="Date fin"/>
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Au :" styleClass="filter-label"/>
+            <DatePicker fx:id="dateFin" promptText="jj/mm/aaaa" prefWidth="140"/>
         </HBox>
-        <Button text="Filtrer" onAction="#handleFilter" styleClass="action-button, primary">
-            <graphic><FontIcon iconLiteral="fas-filter"/></graphic>
-        </Button>
-        <Button text="Aujourd'hui" onAction="#handleToday" styleClass="action-button">
-            <graphic><FontIcon iconLiteral="fas-calendar-day"/></graphic>
-        </Button>
-        <Button text="Cette semaine" onAction="#handleThisWeek" styleClass="action-button">
-            <graphic><FontIcon iconLiteral="fas-calendar-week"/></graphic>
-        </Button>
+        <HBox spacing="5" alignment="CENTER_LEFT" styleClass="filter-buttons-group">
+            <Button text="Filtrer" onAction="#handleFilter" styleClass="action-button, primary">
+                <graphic><FontIcon iconLiteral="fas-filter"/></graphic>
+            </Button>
+            <Button text="Aujourd'hui" onAction="#handleToday" styleClass="action-button, filter-pill">
+                <graphic><FontIcon iconLiteral="fas-calendar-day"/></graphic>
+            </Button>
+            <Button text="Cette semaine" onAction="#handleThisWeek" styleClass="action-button, filter-pill">
+                <graphic><FontIcon iconLiteral="fas-calendar-week"/></graphic>
+            </Button>
+        </HBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblTotal" text="Total: 0.00 EUR" styleClass="total-label"/>
     </HBox>
@@ -42,7 +44,7 @@
             <Label text="Historique des Ventes" styleClass="panel-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="lblCount" text="0 vente(s)" styleClass="count-label"/>
-            <Button text="Exporter CSV" onAction="#handleExportCSV" styleClass="action-button">
+            <Button text="Exporter CSV" onAction="#handleExportCSV" styleClass="export-button">
                 <graphic><FontIcon iconLiteral="fas-file-csv"/></graphic>
             </Button>
         </HBox>
@@ -68,7 +70,7 @@
             <FontIcon iconLiteral="fas-receipt" styleClass="panel-icon"/>
             <Label fx:id="lblDetailTitle" text="Detail de la vente N°" styleClass="panel-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Fermer" onAction="#handleCloseDetail" styleClass="action-button">
+            <Button text="Fermer" onAction="#handleCloseDetail" styleClass="action-button, danger-button">
                 <graphic><FontIcon iconLiteral="fas-times"/></graphic>
             </Button>
         </HBox>

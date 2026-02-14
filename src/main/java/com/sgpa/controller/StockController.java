@@ -260,7 +260,7 @@ public class StockController extends BaseController {
                 logger.error("Erreur chargement medicaments", getException());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void updateStats() {
@@ -316,7 +316,7 @@ public class StockController extends BaseController {
                 logger.error("Erreur chargement lots", getException());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -338,7 +338,7 @@ public class StockController extends BaseController {
                 medicamentData.setAll(getValue());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -391,7 +391,7 @@ public class StockController extends BaseController {
                 addLotDialog.setManaged(true);
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -455,7 +455,7 @@ public class StockController extends BaseController {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ajouter le lot: " + getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void handleDeleteLot(Lot lot) {
@@ -485,7 +485,7 @@ public class StockController extends BaseController {
                         showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de supprimer le lot.");
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }
@@ -511,7 +511,7 @@ public class StockController extends BaseController {
                     "Une erreur est survenue lors de l'export CSV.");
         });
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

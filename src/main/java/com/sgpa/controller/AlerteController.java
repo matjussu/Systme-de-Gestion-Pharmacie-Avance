@@ -184,7 +184,7 @@ public class AlerteController extends BaseController {
             }
         };
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     @FXML
@@ -259,7 +259,7 @@ public class AlerteController extends BaseController {
                     "Impossible de generer le rapport PDF.");
         });
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

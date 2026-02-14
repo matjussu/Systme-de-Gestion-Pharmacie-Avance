@@ -198,7 +198,7 @@ public class UtilisateurController extends BaseController {
                         "Impossible de charger les utilisateurs: " + getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void applyFilters() {
@@ -399,7 +399,7 @@ public class UtilisateurController extends BaseController {
                 showAlert(Alert.AlertType.ERROR, "Erreur", getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void saveExistingUser() {
@@ -453,7 +453,7 @@ public class UtilisateurController extends BaseController {
                 showAlert(Alert.AlertType.ERROR, "Erreur", getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -492,7 +492,7 @@ public class UtilisateurController extends BaseController {
                         showAlert(Alert.AlertType.ERROR, "Erreur", getException().getMessage());
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }
@@ -533,7 +533,7 @@ public class UtilisateurController extends BaseController {
                                 "Il est peut-etre reference dans des ventes.");
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }

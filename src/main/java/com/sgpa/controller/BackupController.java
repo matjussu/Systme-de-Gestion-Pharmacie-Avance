@@ -148,7 +148,7 @@ public class BackupController extends BaseController {
             alert.showAndWait();
         });
 
-        new Thread(backupTask).start();
+        runAsync(backupTask);
     }
 
     private void handleRestore(BackupFile backup) {
@@ -203,7 +203,7 @@ public class BackupController extends BaseController {
             alert.showAndWait();
         });
 
-        new Thread(restoreTask).start();
+        runAsync(restoreTask);
     }
 
     private void handleDelete(BackupFile backup) {

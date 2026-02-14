@@ -143,7 +143,7 @@ public class AuditController extends BaseController {
                 });
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void setupTable() {
@@ -241,7 +241,7 @@ public class AuditController extends BaseController {
                         "Impossible de charger le journal: " + getException().getMessage());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void updatePagination() {
@@ -320,7 +320,7 @@ public class AuditController extends BaseController {
                     "Une erreur est survenue lors de l'export CSV.");
         });
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

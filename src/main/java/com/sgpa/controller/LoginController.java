@@ -192,7 +192,7 @@ public class LoginController {
             passwordField.requestFocus();
         });
 
-        new Thread(loginTask).start();
+        BaseController.getExecutor().submit(loginTask);
     }
 
     private void openDashboard(Utilisateur user) {
@@ -214,11 +214,6 @@ public class LoginController {
             stage.setMinHeight(600);
             stage.setScene(scene);
             stage.setMaximized(true);
-            javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-            stage.setWidth(screenBounds.getWidth());
-            stage.setHeight(screenBounds.getHeight());
-            stage.setX(screenBounds.getMinX());
-            stage.setY(screenBounds.getMinY());
 
         } catch (IOException e) {
             logger.error("Erreur lors du chargement du dashboard", e);

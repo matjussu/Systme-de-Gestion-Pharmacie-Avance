@@ -50,4 +50,13 @@ public interface CommandeDAO extends GenericDAO<Commande, Integer> {
      * @throws DAOException si une erreur survient
      */
     List<Commande> findByFournisseur(int idFournisseur) throws DAOException;
+
+    /**
+     * Recherche les commandes contenant un medicament donne.
+     *
+     * @param idMedicament l'ID du medicament
+     * @return la liste des commandes
+     * @throws DAOException si une erreur survient
+     */
+    List<Commande> findByMedicament(int idMedicament) throws DAOException;
 }

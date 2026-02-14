@@ -23,6 +23,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -74,6 +77,7 @@ public class VenteController extends BaseController {
 
     private final ObservableList<MedicamentStock> medicamentsData = FXCollections.observableArrayList();
     private final ObservableList<LignePanier> panierData = FXCollections.observableArrayList();
+    private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(250));
 
     public VenteController() {
         this.medicamentDAO = new MedicamentDAOImpl();
@@ -212,11 +216,16 @@ public class VenteController extends BaseController {
             logger.error("Erreur lors du chargement des medicaments", loadTask.getException());
         });
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     @FXML
     private void handleSearch() {
+        searchDebounce.setOnFinished(e -> executeSearch());
+        searchDebounce.playFromStart();
+    }
+
+    private void executeSearch() {
         String search = searchField.getText().trim().toLowerCase();
         if (search.isEmpty()) {
             loadAllMedicaments();
@@ -241,7 +250,7 @@ public class VenteController extends BaseController {
             medicamentsData.setAll(searchTask.getValue());
         });
 
-        new Thread(searchTask).start();
+        runAsync(searchTask);
     }
 
     @FXML
@@ -362,7 +371,7 @@ public class VenteController extends BaseController {
             btnValider.setDisable(false);
         });
 
-        new Thread(venteTask).start();
+        runAsync(venteTask);
     }
 
     private void updateTotals() {
@@ -437,7 +446,7 @@ public class VenteController extends BaseController {
                     "Impossible de generer le ticket de caisse.");
         });
 
-        new Thread(printTask).start();
+        runAsync(printTask);
     }
 
     /**

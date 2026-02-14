@@ -21,29 +21,46 @@
 
         <!-- Recherche de vente -->
         <HBox spacing="15" alignment="CENTER_LEFT">
-            <Label text="N Vente:" styleClass="form-label" prefWidth="100"/>
-            <TextField fx:id="txtNumeroVente" promptText="Numero de la vente" prefWidth="150"/>
+            <Label text="Num&#233;ro de vente :" styleClass="form-label" prefWidth="130"/>
+            <TextField fx:id="txtNumeroVente" promptText="Ex: 1042" prefWidth="150" onAction="#handleRechercherVente"/>
             <Button text="Rechercher" onAction="#handleRechercherVente" styleClass="action-button, primary">
                 <graphic><FontIcon iconLiteral="fas-search"/></graphic>
             </Button>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblInfoVente" text="" styleClass="info-text"/>
+        </HBox>
+
+        <!-- Panneau info vente -->
+        <HBox fx:id="paneInfoVente" visible="false" managed="false" styleClass="vente-info-panel" spacing="25" alignment="CENTER_LEFT">
+            <FontIcon iconLiteral="fas-receipt" iconSize="22" iconColor="#16a34a"/>
+            <VBox spacing="2">
+                <Label text="Date de la vente" styleClass="vente-info-label"/>
+                <Label fx:id="lblDateVente" text="-" styleClass="vente-info-value"/>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="35"/>
+            <VBox spacing="2">
+                <Label text="Montant total" styleClass="vente-info-label"/>
+                <Label fx:id="lblMontantVente" text="-" styleClass="vente-info-montant"/>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="35"/>
+            <VBox spacing="2">
+                <Label text="Nombre d'articles" styleClass="vente-info-label"/>
+                <Label fx:id="lblNbArticles" text="-" styleClass="vente-info-value"/>
+            </VBox>
         </HBox>
 
         <!-- Details de la vente trouvee -->
         <VBox fx:id="paneVenteDetails" visible="false" managed="false" spacing="10" styleClass="details-section">
             <Separator/>
-            <Label text="Articles de la vente:" styleClass="sub-title"/>
+            <Label text="Articles de la vente :" styleClass="sub-title"/>
             <TableView fx:id="tableLignesVente" maxHeight="150" styleClass="data-table">
                 <columns>
-                    <TableColumn fx:id="colMedicament" text="Medicament" prefWidth="200"/>
-                    <TableColumn fx:id="colLot" text="N Lot" prefWidth="120"/>
-                    <TableColumn fx:id="colQuantiteVendue" text="Qte Vendue" prefWidth="90"/>
-                    <TableColumn fx:id="colQuantiteRetournee" text="Deja Retourne" prefWidth="100"/>
+                    <TableColumn fx:id="colMedicament" text="M&#233;dicament" prefWidth="200"/>
+                    <TableColumn fx:id="colLot" text="N&#176; Lot" prefWidth="120"/>
+                    <TableColumn fx:id="colQuantiteVendue" text="Qt&#233; vendue" prefWidth="90"/>
+                    <TableColumn fx:id="colQuantiteRetournee" text="D&#233;j&#224; retourn&#233;" prefWidth="100"/>
                     <TableColumn fx:id="colQuantiteRestante" text="Retournable" prefWidth="90"/>
                 </columns>
                 <placeholder>
-                    <Label text="Selectionnez une ligne pour effectuer un retour"/>
+                    <Label text="S&#233;lectionnez une ligne pour effectuer un retour"/>
                 </placeholder>
             </TableView>
 
@@ -52,25 +69,25 @@
                 <Separator/>
                 <HBox spacing="15" alignment="CENTER_LEFT">
                     <VBox spacing="5">
-                        <Label text="Article selectionne:" styleClass="form-label"/>
+                        <Label text="Article s&#233;lectionn&#233; :" styleClass="form-label"/>
                         <Label fx:id="lblArticleSelectionne" text="-" styleClass="selected-item"/>
                     </VBox>
                     <VBox spacing="5">
-                        <Label text="Quantite a retourner:" styleClass="form-label"/>
+                        <Label text="Quantit&#233; &#224; retourner :" styleClass="form-label"/>
                         <Spinner fx:id="spinnerQuantite" prefWidth="100" min="1" max="999" initialValue="1"/>
                     </VBox>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Motif du retour:" styleClass="form-label"/>
-                        <ComboBox fx:id="comboMotif" prefWidth="250" promptText="Selectionnez un motif"/>
+                        <Label text="Motif du retour :" styleClass="form-label"/>
+                        <ComboBox fx:id="comboMotif" prefWidth="250" promptText="S&#233;lectionnez un motif"/>
                     </VBox>
                 </HBox>
                 <HBox spacing="15" alignment="CENTER_LEFT">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Commentaire (optionnel):" styleClass="form-label"/>
-                        <TextField fx:id="txtCommentaire" promptText="Commentaire supplementaire"/>
+                        <Label text="Commentaire (optionnel) :" styleClass="form-label"/>
+                        <TextField fx:id="txtCommentaire" promptText="Commentaire suppl&#233;mentaire"/>
                     </VBox>
                     <VBox spacing="5" alignment="CENTER_LEFT">
-                        <CheckBox fx:id="chkReintegrer" text="Reintegrer au stock" selected="true"/>
+                        <CheckBox fx:id="chkReintegrer" text="R&#233;int&#233;grer au stock" selected="true"/>
                         <Label fx:id="lblReintegrerInfo" text="" styleClass="info-text-small"/>
                     </VBox>
                 </HBox>
@@ -93,21 +110,21 @@
             <Label text="Historique des Retours" styleClass="panel-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <!-- Filtres -->
-            <Label text="Du:" styleClass="filter-label"/>
-            <DatePicker fx:id="dateDebut" promptText="Date debut"/>
-            <Label text="Au:" styleClass="filter-label"/>
+            <Label text="Du :" styleClass="filter-label"/>
+            <DatePicker fx:id="dateDebut" promptText="Date d&#233;but"/>
+            <Label text="Au :" styleClass="filter-label"/>
             <DatePicker fx:id="dateFin" promptText="Date fin"/>
             <Button text="Filtrer" onAction="#handleFiltrer" styleClass="action-button, primary">
                 <graphic><FontIcon iconLiteral="fas-filter"/></graphic>
             </Button>
-            <Button text="Reinitialiser" onAction="#handleReinitialiser" styleClass="action-button">
+            <Button text="R&#233;initialiser" onAction="#handleReinitialiser" styleClass="action-button">
                 <graphic><FontIcon iconLiteral="fas-sync"/></graphic>
             </Button>
         </HBox>
 
         <!-- Filtres supplementaires -->
         <HBox spacing="15" alignment="CENTER_LEFT">
-            <Label text="Filtre:" styleClass="filter-label"/>
+            <Label text="Filtre :" styleClass="filter-label"/>
             <ComboBox fx:id="comboFiltreReintegre" promptText="Tous les retours" prefWidth="180"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="lblCount" text="0 retour(s)" styleClass="count-label"/>
@@ -115,18 +132,17 @@
 
         <TableView fx:id="tableRetours" VBox.vgrow="ALWAYS" styleClass="data-table">
             <columns>
-                <TableColumn fx:id="colRetourId" text="N" prefWidth="50"/>
-                <TableColumn fx:id="colRetourDate" text="Date/Heure" prefWidth="140"/>
-                <TableColumn fx:id="colRetourVente" text="Vente" prefWidth="70"/>
-                <TableColumn fx:id="colRetourMedicament" text="Medicament" prefWidth="180"/>
-                <TableColumn fx:id="colRetourLot" text="N Lot" prefWidth="100"/>
-                <TableColumn fx:id="colRetourQuantite" text="Qte" prefWidth="60"/>
+<TableColumn fx:id="colRetourDate" text="Date/Heure" prefWidth="140"/>
+                <TableColumn fx:id="colRetourVente" text="N&#176; Vente" prefWidth="80"/>
+                <TableColumn fx:id="colRetourMedicament" text="M&#233;dicament" prefWidth="180"/>
+                <TableColumn fx:id="colRetourLot" text="N&#176; Lot" prefWidth="100"/>
+                <TableColumn fx:id="colRetourQuantite" text="Quantit&#233;" prefWidth="70"/>
                 <TableColumn fx:id="colRetourMotif" text="Motif" prefWidth="150"/>
-                <TableColumn fx:id="colRetourReintegre" text="Reintegre" prefWidth="80"/>
-                <TableColumn fx:id="colRetourUtilisateur" text="Par" prefWidth="120"/>
+                <TableColumn fx:id="colRetourReintegre" text="R&#233;int&#233;gr&#233;" prefWidth="80"/>
+                <TableColumn fx:id="colRetourUtilisateur" text="Utilisateur" prefWidth="120"/>
             </columns>
             <placeholder>
-                <Label text="Aucun retour enregistre"/>
+                <Label text="Aucun retour enregistr&#233;"/>
             </placeholder>
         </TableView>
     </VBox>

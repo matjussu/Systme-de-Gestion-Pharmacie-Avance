@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.sgpa.controller.ProduitsStockController"
+           maxWidth="Infinity" maxHeight="Infinity">
+
+    <!-- Contenu principal -->
+    <VBox spacing="15" styleClass="produits-stock-root" maxWidth="Infinity" maxHeight="Infinity">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- En-tete avec recherche et actions -->
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Rechercher par nom ou principe actif..."
+                       HBox.hgrow="ALWAYS" onKeyReleased="#handleSearch"/>
+            <Button onAction="#handleSearch" styleClass="icon-button">
+                <graphic><FontIcon iconLiteral="fas-search"/></graphic>
+            </Button>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Nouveau Medicament" onAction="#handleNewMedicament" styleClass="action-button, primary">
+                <graphic><FontIcon iconLiteral="fas-plus"/></graphic>
+            </Button>
+            <Button text="Ajouter Lot" onAction="#handleAddLot" styleClass="action-button, primary">
+                <graphic><FontIcon iconLiteral="fas-box"/></graphic>
+            </Button>
+            <Button text="Exporter CSV" onAction="#handleExportCSV" styleClass="action-button">
+                <graphic><FontIcon iconLiteral="fas-file-csv"/></graphic>
+            </Button>
+            <Button onAction="#handleRefresh" styleClass="icon-button">
+                <graphic><FontIcon iconLiteral="fas-sync-alt"/></graphic>
+            </Button>
+        </HBox>
+
+        <!-- Statistiques (filtres cliquables) -->
+        <HBox spacing="15" styleClass="stats-mini">
+            <HBox fx:id="badgeTotal" spacing="5" alignment="CENTER_LEFT" styleClass="stat-badge, clickable-badge">
+                <FontIcon iconLiteral="fas-pills" styleClass="stat-icon-mini"/>
+                <Label fx:id="lblTotalMedicaments" text="0 medicaments"/>
+            </HBox>
+            <HBox fx:id="badgeStockBas" spacing="5" alignment="CENTER_LEFT" styleClass="stat-badge, warning, clickable-badge">
+                <FontIcon iconLiteral="fas-exclamation-triangle" styleClass="stat-icon-mini"/>
+                <Label fx:id="lblStockBas" text="0 en stock bas"/>
+            </HBox>
+            <HBox fx:id="badgePeremption" spacing="5" alignment="CENTER_LEFT" styleClass="stat-badge, danger, clickable-badge">
+                <FontIcon iconLiteral="fas-clock" styleClass="stat-icon-mini"/>
+                <Label fx:id="lblPeremptionProche" text="0 peremption proche"/>
+            </HBox>
+            <HBox fx:id="badgeValorisation" spacing="5" alignment="CENTER_LEFT" styleClass="stat-badge, info, clickable-badge">
+                <FontIcon iconLiteral="fas-euro-sign" styleClass="stat-icon-mini"/>
+                <Label fx:id="lblValeurStock" text="0.00 \u20AC"/>
+            </HBox>
+        </HBox>
+
+        <!-- Conteneur principal -->
+        <HBox spacing="15" VBox.vgrow="ALWAYS">
+            <!-- Table medicaments (gauche) -->
+            <VBox spacing="10" styleClass="panel" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Catalogue des Medicaments" styleClass="panel-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblCount" text="0 medicaments" styleClass="info-text"/>
+                </HBox>
+                <TableView fx:id="tableMedicaments" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colOrdonnance" text="" prefWidth="30" maxWidth="35" sortable="false"/>
+                        <TableColumn fx:id="colNom" text="Nom Commercial" prefWidth="160"/>
+                        <TableColumn fx:id="colPrincipe" text="Principe Actif" prefWidth="120"/>
+                        <TableColumn fx:id="colForme" text="Forme" prefWidth="80"/>
+                        <TableColumn fx:id="colDosage" text="Dosage" prefWidth="70"/>
+                        <TableColumn fx:id="colPrix" text="Prix" prefWidth="70"/>
+                        <TableColumn fx:id="colStock" text="Stock" prefWidth="55"/>
+                        <TableColumn fx:id="colSeuil" text="Seuil" prefWidth="50"/>
+                        <TableColumn fx:id="colStatut" text="Statut" prefWidth="70"/>
+                        <TableColumn fx:id="colRupture" text="Rupture" prefWidth="65"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Aucun medicament"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+
+            <!-- Panneau detail (droite, cache par defaut) -->
+            <VBox fx:id="detailPanel" spacing="10" styleClass="panel" visible="false" managed="false"
+                  minWidth="550" prefWidth="600">
+                <!-- Header du panneau detail -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="lblDetailTitle" text="" styleClass="panel-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button onAction="#handleCloseDetail" styleClass="icon-button">
+                        <graphic><FontIcon iconLiteral="fas-times"/></graphic>
+                    </Button>
+                </HBox>
+
+                <!-- TabPane avec onglets -->
+                <TabPane fx:id="detailTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                    <!-- Onglet Fiche -->
+                    <Tab fx:id="tabFiche" text="Fiche">
+                        <ScrollPane fitToWidth="true" styleClass="form-scroll">
+                            <VBox spacing="15">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+
+                                <VBox spacing="5">
+                                    <Label text="Nom Commercial *" styleClass="form-label"/>
+                                    <TextField fx:id="txtNomCommercial" promptText="Ex: Doliprane"/>
+                                </VBox>
+
+                                <VBox spacing="5">
+                                    <Label text="Principe Actif *" styleClass="form-label"/>
+                                    <TextField fx:id="txtPrincipeActif" promptText="Ex: Paracetamol"/>
+                                </VBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Forme Galenique" styleClass="form-label"/>
+                                        <ComboBox fx:id="comboForme" maxWidth="Infinity" editable="true"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Dosage" styleClass="form-label"/>
+                                        <TextField fx:id="txtDosage" promptText="Ex: 500mg"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="10">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Prix Public (EUR) *" styleClass="form-label"/>
+                                        <TextField fx:id="txtPrix" promptText="0.00"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Seuil Minimum *" styleClass="form-label"/>
+                                        <Spinner fx:id="spinnerSeuil" min="0" max="9999" initialValue="10" editable="true" maxWidth="Infinity"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="5">
+                                    <Label text="Description" styleClass="form-label"/>
+                                    <TextArea fx:id="txtDescription" promptText="Description du medicament..."
+                                              prefRowCount="3" wrapText="true"/>
+                                </VBox>
+
+                                <HBox spacing="20">
+                                    <CheckBox fx:id="chkOrdonnance" text="Necessite une ordonnance"/>
+                                    <CheckBox fx:id="chkActif" text="Actif dans le catalogue" selected="true"/>
+                                </HBox>
+
+                                <Separator/>
+
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Button fx:id="btnDelete" text="Desactiver" onAction="#handleDeleteMedicament"
+                                            styleClass="danger-button" visible="false" managed="false">
+                                        <graphic><FontIcon iconLiteral="fas-ban"/></graphic>
+                                    </Button>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Annuler" onAction="#handleCancelForm" styleClass="secondary-button"/>
+                                    <Button text="Enregistrer" onAction="#handleSaveMedicament" styleClass="action-button, success">
+                                        <graphic><FontIcon iconLiteral="fas-save"/></graphic>
+                                    </Button>
+                                </HBox>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
+
+                    <!-- Onglet Lots -->
+                    <Tab fx:id="tabLots" text="Lots">
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label fx:id="lblLotsTitle" text="Lots" styleClass="panel-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Ajouter lot" onAction="#handleAddLotToSelected" styleClass="action-button-small">
+                                    <graphic><FontIcon iconLiteral="fas-plus"/></graphic>
+                                </Button>
+                            </HBox>
+                            <TableView fx:id="tableLots" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colLotNumero" text="N Lot" prefWidth="90"/>
+                                    <TableColumn fx:id="colLotPeremption" text="Peremption" prefWidth="85"/>
+                                    <TableColumn fx:id="colLotJours" text="Jours" prefWidth="50"/>
+                                    <TableColumn fx:id="colLotQuantite" text="Qte" prefWidth="45"/>
+                                    <TableColumn fx:id="colLotPrixAchat" text="Prix Achat" prefWidth="75"/>
+                                    <TableColumn fx:id="colLotDateReception" text="Reception" prefWidth="80"/>
+                                    <TableColumn fx:id="colLotFournisseur" text="Fournisseur" prefWidth="100"/>
+                                    <TableColumn fx:id="colLotAction" text="" prefWidth="35"/>
+                                </columns>
+                                <placeholder>
+                                    <Label text="Aucun lot pour ce medicament"/>
+                                </placeholder>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Onglet Commandes -->
+                    <Tab fx:id="tabCommandes" text="Commandes">
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Historique des commandes" styleClass="panel-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="btnCommanderCeProduit" text="Commander ce produit"
+                                        onAction="#handleCommanderCeProduit" styleClass="action-button-small">
+                                    <graphic><FontIcon iconLiteral="fas-truck"/></graphic>
+                                </Button>
+                            </HBox>
+                            <TableView fx:id="tableCommandes" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colCmdId" text="N" prefWidth="50"/>
+                                    <TableColumn fx:id="colCmdDate" text="Date" prefWidth="130"/>
+                                    <TableColumn fx:id="colCmdStatut" text="Statut" prefWidth="100"/>
+                                    <TableColumn fx:id="colCmdFournisseur" text="Fournisseur" prefWidth="140"/>
+                                </columns>
+                                <placeholder>
+                                    <Label text="Aucune commande pour ce medicament"/>
+                                </placeholder>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+                </TabPane>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Dialog ajout lot (overlay modal) -->
+    <VBox fx:id="addLotDialog" visible="false" managed="false" styleClass="dialog-overlay"
+          alignment="CENTER" maxWidth="Infinity" maxHeight="Infinity">
+        <VBox styleClass="dialog-content" spacing="15" maxWidth="500" minWidth="420">
+            <Label text="Ajouter un nouveau lot" styleClass="dialog-title"/>
+
+            <VBox spacing="5">
+                <Label text="Medicament *" styleClass="form-label"/>
+                <ComboBox fx:id="comboMedicament" maxWidth="Infinity" promptText="Rechercher un medicament..." editable="true"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="N Lot *" styleClass="form-label"/>
+                <TextField fx:id="txtNumeroLot" promptText="Ex: LOT2024001"/>
+            </VBox>
+
+            <HBox spacing="10">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Date de peremption *" styleClass="form-label"/>
+                    <DatePicker fx:id="dpPeremption" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Quantite *" styleClass="form-label"/>
+                    <Spinner fx:id="spinnerQte" min="1" max="99999" initialValue="1" editable="true" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="5">
+                <Label text="Fournisseur *" styleClass="form-label"/>
+                <ComboBox fx:id="comboFournisseur" maxWidth="Infinity" promptText="Rechercher un fournisseur..." editable="true"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Prix d'achat unitaire (EUR) *" styleClass="form-label"/>
+                <TextField fx:id="txtPrixAchat" promptText="0.00"/>
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Annuler" onAction="#handleCancelAddLot" styleClass="secondary-button"/>
+                <Button text="Ajouter" onAction="#handleConfirmAddLot" styleClass="action-button, success">
+                    <graphic><FontIcon iconLiteral="fas-plus"/></graphic>
+                </Button>
+            </HBox>
+        </VBox>
+    </VBox>
+
+</StackPane>

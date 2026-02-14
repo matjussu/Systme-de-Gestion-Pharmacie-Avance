@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javafx.util.StringConverter;
+
 /**
  * Controleur pour l'ecran d'historique des ventes.
  * Affiche la liste des ventes avec filtres et detail.
@@ -77,6 +79,23 @@ public class HistoriqueController extends BaseController {
     }
 
     private void setupDatePickers() {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        StringConverter<LocalDate> converter = new StringConverter<>() {
+            @Override
+            public String toString(LocalDate date) {
+                return date != null ? dateFormatter.format(date) : "";
+            }
+
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                }
+                return null;
+            }
+        };
+        dateDebut.setConverter(converter);
+        dateFin.setConverter(converter);
         dateDebut.setValue(LocalDate.now());
         dateFin.setValue(LocalDate.now());
     }
@@ -147,7 +166,7 @@ public class HistoriqueController extends BaseController {
             logger.error("Erreur lors du chargement des ventes", loadTask.getException());
         });
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     @FXML
@@ -194,7 +213,7 @@ public class HistoriqueController extends BaseController {
             logger.error("Erreur lors du chargement du detail", loadTask.getException());
         });
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     @FXML
@@ -239,7 +258,7 @@ public class HistoriqueController extends BaseController {
             alert.showAndWait();
         });
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 
     /**

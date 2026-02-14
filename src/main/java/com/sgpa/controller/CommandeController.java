@@ -260,7 +260,7 @@ public class CommandeController extends BaseController {
                 logger.error("Erreur chargement commandes", getException());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void updateStats() {
@@ -311,7 +311,7 @@ public class CommandeController extends BaseController {
                 logger.error("Erreur chargement lignes", getException());
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -348,7 +348,7 @@ public class CommandeController extends BaseController {
                 newOrderDialog.setManaged(true);
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -421,7 +421,7 @@ public class CommandeController extends BaseController {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de creer la commande.");
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -476,7 +476,7 @@ public class CommandeController extends BaseController {
                                 "Impossible de recevoir la commande: " + getException().getMessage());
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }
@@ -512,7 +512,7 @@ public class CommandeController extends BaseController {
                         showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'annuler la commande.");
                     }
                 };
-                new Thread(task).start();
+                runAsync(task);
             }
         });
     }
@@ -557,7 +557,7 @@ public class CommandeController extends BaseController {
                 newOrderDialog.setManaged(true);
             }
         };
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -614,6 +614,6 @@ public class CommandeController extends BaseController {
                     "Impossible de generer le bon de commande PDF.");
         });
 
-        new Thread(exportTask).start();
+        runAsync(exportTask);
     }
 }

@@ -12,7 +12,9 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +35,14 @@ public class RetourController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(RetourController.class);
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // Section nouveau retour
     @FXML private TextField txtNumeroVente;
-    @FXML private Label lblInfoVente;
+    @FXML private HBox paneInfoVente;
+    @FXML private Label lblDateVente;
+    @FXML private Label lblMontantVente;
+    @FXML private Label lblNbArticles;
     @FXML private VBox paneVenteDetails;
     @FXML private TableView<LigneVenteRow> tableLignesVente;
     @FXML private TableColumn<LigneVenteRow, String> colMedicament;
@@ -60,7 +66,6 @@ public class RetourController extends BaseController {
     @FXML private ComboBox<String> comboFiltreReintegre;
     @FXML private Label lblCount;
     @FXML private TableView<RetourRow> tableRetours;
-    @FXML private TableColumn<RetourRow, String> colRetourId;
     @FXML private TableColumn<RetourRow, String> colRetourDate;
     @FXML private TableColumn<RetourRow, String> colRetourVente;
     @FXML private TableColumn<RetourRow, String> colRetourMedicament;
@@ -86,6 +91,7 @@ public class RetourController extends BaseController {
     public void initialize() {
         setupMotifs();
         setupFiltres();
+        setupDatePickers();
         setupLignesVenteTable();
         setupRetoursTable();
         setupSpinner();
@@ -120,6 +126,25 @@ public class RetourController extends BaseController {
         comboFiltreReintegre.setOnAction(e -> loadRetours());
     }
 
+    private void setupDatePickers() {
+        StringConverter<LocalDate> converter = new StringConverter<>() {
+            @Override
+            public String toString(LocalDate date) {
+                return date != null ? DATE_FORMAT.format(date) : "";
+            }
+
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, DATE_FORMAT);
+                }
+                return null;
+            }
+        };
+        dateDebut.setConverter(converter);
+        dateFin.setConverter(converter);
+    }
+
     private void setupLignesVenteTable() {
         colMedicament.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().medicament));
         colLot.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().numeroLot));
@@ -138,7 +163,6 @@ public class RetourController extends BaseController {
     }
 
     private void setupRetoursTable() {
-        colRetourId.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().id)));
         colRetourDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().dateHeure));
         colRetourVente.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().idVente)));
         colRetourMedicament.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().medicament));
@@ -147,6 +171,25 @@ public class RetourController extends BaseController {
         colRetourMotif.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().motif));
         colRetourReintegre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().reintegre ? "Oui" : "Non"));
         colRetourUtilisateur.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().utilisateur));
+
+        // Coloration conditionnelle pour la colonne Reintegre
+        colRetourReintegre.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if ("Oui".equals(item)) {
+                        setStyle("-fx-text-fill: #16a34a; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                    }
+                }
+            }
+        });
 
         tableRetours.setItems(retoursData);
     }
@@ -194,9 +237,10 @@ public class RetourController extends BaseController {
                 logger.error("Erreur recherche vente", ex);
             }
             resetFormulaire();
+            masquerInfoVente();
         });
 
-        new Thread(searchTask).start();
+        runAsync(searchTask);
     }
 
     private void afficherDetailsVente() {
@@ -205,10 +249,13 @@ public class RetourController extends BaseController {
         // Charger les quantites deja retournees pour cette vente
         loadQuantitesRetournees();
 
-        lblInfoVente.setText(String.format("Vente du %s - Montant: %.2f EUR",
-                venteSelectionnee.getDateVente() != null ?
-                        venteSelectionnee.getDateVente().format(DATE_TIME_FORMAT) : "-",
-                venteSelectionnee.getMontantTotal()));
+        // Panneau info vente
+        lblDateVente.setText(venteSelectionnee.getDateVente() != null ?
+                venteSelectionnee.getDateVente().format(DATE_TIME_FORMAT) : "-");
+        lblMontantVente.setText(String.format("%.2f EUR", venteSelectionnee.getMontantTotal()));
+        lblNbArticles.setText(String.valueOf(venteSelectionnee.getLignesVente().size()));
+        paneInfoVente.setVisible(true);
+        paneInfoVente.setManaged(true);
 
         lignesVenteData.clear();
         for (LigneVente ligne : venteSelectionnee.getLignesVente()) {
@@ -220,6 +267,13 @@ public class RetourController extends BaseController {
         paneVenteDetails.setManaged(true);
         paneFormulaire.setVisible(false);
         paneFormulaire.setManaged(false);
+    }
+
+    private void masquerInfoVente() {
+        paneInfoVente.setVisible(false);
+        paneInfoVente.setManaged(false);
+        paneVenteDetails.setVisible(false);
+        paneVenteDetails.setManaged(false);
     }
 
     private void loadQuantitesRetournees() {
@@ -318,7 +372,7 @@ public class RetourController extends BaseController {
             }
         });
 
-        new Thread(saveTask).start();
+        runAsync(saveTask);
     }
 
     @FXML
@@ -349,10 +403,8 @@ public class RetourController extends BaseController {
         dateFin.setValue(LocalDate.now());
         comboFiltreReintegre.setValue("Tous les retours");
         venteSelectionnee = null;
-        paneVenteDetails.setVisible(false);
-        paneVenteDetails.setManaged(false);
+        masquerInfoVente();
         txtNumeroVente.clear();
-        lblInfoVente.setText("");
         lignesVenteData.clear();
         resetFormulaire();
         loadRetours();
@@ -398,7 +450,7 @@ public class RetourController extends BaseController {
             logger.error("Erreur lors du chargement des retours", loadTask.getException());
         });
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     private void showError(String message) {

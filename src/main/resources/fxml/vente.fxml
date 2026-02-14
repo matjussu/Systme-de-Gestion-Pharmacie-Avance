@@ -53,7 +53,8 @@
 
         <!-- Panneau de droite: Panier -->
         <VBox spacing="15" HBox.hgrow="ALWAYS" styleClass="panel">
-            <HBox alignment="CENTER" spacing="10">
+            <HBox alignment="CENTER" spacing="8">
+                <Region HBox.hgrow="ALWAYS"/>
                 <FontIcon iconLiteral="fas-shopping-cart" styleClass="panel-icon"/>
                 <Label text="Panier" styleClass="panel-title"/>
                 <Region HBox.hgrow="ALWAYS"/>

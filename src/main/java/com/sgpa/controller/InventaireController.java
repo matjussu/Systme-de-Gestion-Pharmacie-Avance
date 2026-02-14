@@ -248,7 +248,7 @@ public class InventaireController extends BaseController {
             afficherNoSession();
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void afficherSessionEnCours() {
@@ -302,7 +302,7 @@ public class InventaireController extends BaseController {
             updateComptagesStats();
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void updateLotsWithComptages() {
@@ -357,7 +357,7 @@ public class InventaireController extends BaseController {
 
         task.setOnFailed(e -> logger.error("Erreur chargement lots", task.getException()));
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void loadHistorique() {
@@ -377,7 +377,7 @@ public class InventaireController extends BaseController {
 
         task.setOnFailed(e -> logger.error("Erreur chargement historique", task.getException()));
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     private void selectLotForComptage(LotRow lot) {
@@ -434,7 +434,7 @@ public class InventaireController extends BaseController {
             logger.error("Erreur demarrage session", ex);
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -470,7 +470,7 @@ public class InventaireController extends BaseController {
             logger.error("Erreur annulation session", task.getException());
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -525,7 +525,7 @@ public class InventaireController extends BaseController {
             logger.error("Erreur terminaison session", ex);
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML
@@ -579,7 +579,7 @@ public class InventaireController extends BaseController {
             logger.error("Erreur enregistrement comptage", task.getException());
         });
 
-        new Thread(task).start();
+        runAsync(task);
     }
 
     @FXML

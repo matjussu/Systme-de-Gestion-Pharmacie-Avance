@@ -50,12 +50,12 @@ public class AnimationUtils {
      * Effet de pulsation lumineuse sur un noeud (pour alertes).
      */
     public static Timeline pulseGlow(Node node, Color glowColor) {
-        DropShadow glow = new DropShadow(15, glowColor);
+        DropShadow glow = new DropShadow(6, glowColor);
         glow.setSpread(0.1);
         node.setEffect(glow);
         Timeline pulse = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(glow.radiusProperty(), 10)),
-                new KeyFrame(Duration.millis(800), new KeyValue(glow.radiusProperty(), 25, Interpolator.EASE_BOTH))
+                new KeyFrame(Duration.ZERO, new KeyValue(glow.radiusProperty(), 4)),
+                new KeyFrame(Duration.millis(800), new KeyValue(glow.radiusProperty(), 8, Interpolator.EASE_BOTH))
         );
         pulse.setCycleCount(Timeline.INDEFINITE);
         pulse.setAutoReverse(true);
@@ -70,15 +70,15 @@ public class AnimationUtils {
         for (int i = 0; i < nodes.length; i++) {
             Node node = nodes[i];
             node.setOpacity(0);
-            node.setTranslateY(20);
-            FadeTransition fade = new FadeTransition(Duration.millis(400), node);
+            node.setTranslateY(10);
+            FadeTransition fade = new FadeTransition(Duration.millis(120), node);
             fade.setFromValue(0);
             fade.setToValue(1);
-            fade.setDelay(Duration.millis(i * 100));
-            TranslateTransition slide = new TranslateTransition(Duration.millis(400), node);
-            slide.setFromY(20);
+            fade.setDelay(Duration.millis(i * 30));
+            TranslateTransition slide = new TranslateTransition(Duration.millis(120), node);
+            slide.setFromY(10);
             slide.setToY(0);
-            slide.setDelay(Duration.millis(i * 100));
+            slide.setDelay(Duration.millis(i * 30));
             slide.setInterpolator(Interpolator.EASE_OUT);
             fade.play();
             slide.play();
@@ -92,15 +92,15 @@ public class AnimationUtils {
         for (int i = 0; i < nodes.length; i++) {
             Node node = nodes[i];
             node.setOpacity(0);
-            node.setTranslateX(30);
-            FadeTransition fade = new FadeTransition(Duration.millis(400), node);
+            node.setTranslateX(15);
+            FadeTransition fade = new FadeTransition(Duration.millis(120), node);
             fade.setFromValue(0);
             fade.setToValue(1);
-            fade.setDelay(Duration.millis(i * 100));
-            TranslateTransition slide = new TranslateTransition(Duration.millis(400), node);
-            slide.setFromX(30);
+            fade.setDelay(Duration.millis(i * 30));
+            TranslateTransition slide = new TranslateTransition(Duration.millis(120), node);
+            slide.setFromX(15);
             slide.setToX(0);
-            slide.setDelay(Duration.millis(i * 100));
+            slide.setDelay(Duration.millis(i * 30));
             slide.setInterpolator(Interpolator.EASE_OUT);
             fade.play();
             slide.play();

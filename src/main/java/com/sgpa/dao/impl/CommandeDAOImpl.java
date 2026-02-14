@@ -59,6 +59,11 @@ public class CommandeDAOImpl implements CommandeDAO {
     private static final String SQL_FIND_BY_FOURNISSEUR =
             "SELECT * FROM commandes WHERE id_fournisseur = ? ORDER BY date_creation DESC";
 
+    private static final String SQL_FIND_BY_MEDICAMENT =
+            "SELECT DISTINCT c.* FROM commandes c " +
+            "INNER JOIN ligne_commandes lc ON c.id_commande = lc.id_commande " +
+            "WHERE lc.id_medicament = ? ORDER BY c.date_creation DESC";
+
     @Override
     public Optional<Commande> findById(Integer id) throws DAOException {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -289,6 +294,26 @@ public class CommandeDAOImpl implements CommandeDAO {
 
         } catch (SQLException e) {
             throw new DAOException("Erreur lors de la recherche par fournisseur", e);
+        }
+    }
+
+    @Override
+    public List<Commande> findByMedicament(int idMedicament) throws DAOException {
+        List<Commande> commandes = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_FIND_BY_MEDICAMENT)) {
+
+            ps.setInt(1, idMedicament);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    commandes.add(mapResultSetToCommande(rs));
+                }
+            }
+            return commandes;
+
+        } catch (SQLException e) {
+            throw new DAOException("Erreur lors de la recherche par medicament", e);
         }
     }
 

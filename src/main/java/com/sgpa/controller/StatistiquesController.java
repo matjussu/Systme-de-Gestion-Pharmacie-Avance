@@ -253,7 +253,7 @@ public class StatistiquesController extends BaseController {
             logger.error("Erreur lors du chargement des statistiques", loadTask.getException());
         });
 
-        new Thread(loadTask).start();
+        runAsync(loadTask);
     }
 
     private void updateUI(StatistiquesData data) {

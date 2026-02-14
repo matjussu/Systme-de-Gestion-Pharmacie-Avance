@@ -3,6 +3,8 @@ package com.sgpa.dao.impl;
 import com.sgpa.dao.VenteDAO;
 import com.sgpa.exception.DAOException;
 import com.sgpa.model.LigneVente;
+import com.sgpa.model.Lot;
+import com.sgpa.model.Medicament;
 import com.sgpa.model.Vente;
 import com.sgpa.utils.DatabaseConnection;
 import org.slf4j.Logger;
@@ -52,7 +54,10 @@ public class VenteDAOImpl implements VenteDAO {
             "VALUES (?, ?, ?, ?)";
 
     private static final String SQL_FIND_LIGNES_BY_VENTE =
-            "SELECT * FROM ligne_ventes WHERE id_vente = ?";
+            "SELECT lv.*, l.numero_lot, m.nom_commercial FROM ligne_ventes lv " +
+            "LEFT JOIN lots l ON lv.id_lot = l.id_lot " +
+            "LEFT JOIN medicaments m ON l.id_medicament = m.id_medicament " +
+            "WHERE lv.id_vente = ?";
 
     private static final String SQL_FIND_BY_DATE =
             "SELECT * FROM ventes WHERE DATE(date_vente) = ? ORDER BY date_vente DESC";
@@ -387,6 +392,13 @@ public class VenteDAOImpl implements VenteDAO {
         ligne.setIdLot(rs.getInt("id_lot"));
         ligne.setQuantite(rs.getInt("quantite"));
         ligne.setPrixUnitaireApplique(rs.getBigDecimal("prix_unitaire_applique"));
+
+        Lot lot = new Lot();
+        lot.setNumeroLot(rs.getString("numero_lot"));
+        Medicament med = new Medicament();
+        med.setNomCommercial(rs.getString("nom_commercial"));
+        lot.setMedicament(med);
+        ligne.setLot(lot);
 
         return ligne;
     }
